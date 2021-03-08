@@ -1,0 +1,61 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches:
+      - master
+      - stage
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@v1
+        name: Use node
+        with:
+          node-version: "12.x"
+      - name: Testing
+        run: npm ci && npm run lint
+  build:
+    runs-on: ubuntu-latest
+    if: (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stage') && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@master
+      - name: Import Secrets
+        id: secrets
+        uses: hashicorp/vault-action@v2.0.1
+        with:
+          url: https://vault.devstack.cloud
+          method: approle
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_ROLE_SECRET }}
+          exportEnv: false
+          secrets: |
+            /kv/data/shopee_tool/gcp/project_id value | GCP_PROJECT_ID ;
+            /kv/data/shopee_tool/gcp/credential base64 | GCP_SA_KEY ;
+      - name: Docker meta
+        id: docker_meta
+        uses: crazy-max/ghaction-docker-meta@v1
+        with:
+          images: asia.gcr.io/devstack-cloud/shopee-tool-api # list of Docker images to use as base name for tags
+          tag-sha: true # add git short SHA as Docker tag
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ steps.secrets.outputs.GCP_PROJECT_ID }}
+          service_account_key: ${{ steps.secrets.outputs.GCP_SA_KEY }}
+          export_default_credentials: true
+      - name: Login GCR
+        run: gcloud auth configure-docker
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.docker_meta.outputs.tags }}
+          labels: ${{ steps.docker_meta.outputs.labels }}
