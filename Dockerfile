@@ -21,6 +21,7 @@ FROM alpine
 RUN apk add ca-certificates
 
 COPY --from=build_base /tmp/build/out/app /app
+COPY --from=build_base /tmp/build/migrations /migrations
 
 # This container exposes port 8080 to the outside world
 EXPOSE 3000

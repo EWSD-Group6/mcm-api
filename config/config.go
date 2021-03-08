@@ -1,6 +1,10 @@
 package config
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/spf13/viper"
+	"strings"
+)
 
 type Config struct {
 	RedisAddr         string `mapstructure:"redis_addr"`
@@ -21,6 +25,27 @@ type Config struct {
 	MediaBucket       string `mapstructure:"media_bucket"`
 	ConverterService  string `mapstructure:"converter_service"`
 	ImageProxyService string `mapstructure:"image_proxy_service"`
+}
+
+func init() {
+	_ = viper.BindEnv("redis_addr", strings.ToUpper("redis_addr"))
+	_ = viper.BindEnv("redis_password", strings.ToUpper("redis_password"))
+	_ = viper.BindEnv("redis_db", strings.ToUpper("redis_db"))
+	_ = viper.BindEnv("redis_queue_name", strings.ToUpper("redis_queue_name"))
+	_ = viper.BindEnv("s3_media_bucket", strings.ToUpper("s3_media_bucket"))
+	_ = viper.BindEnv("database_host", strings.ToUpper("database_host"))
+	_ = viper.BindEnv("database_port", strings.ToUpper("database_port"))
+	_ = viper.BindEnv("database_username", strings.ToUpper("database_username"))
+	_ = viper.BindEnv("database_password", strings.ToUpper("database_password"))
+	_ = viper.BindEnv("database_name", strings.ToUpper("database_name"))
+	_ = viper.BindEnv("web_app_url", strings.ToUpper("web_app_url"))
+	_ = viper.BindEnv("jwt_secret", strings.ToUpper("jwt_secret"))
+	_ = viper.BindEnv("admin_email", strings.ToUpper("admin_email"))
+	_ = viper.BindEnv("admin_password", strings.ToUpper("admin_password"))
+	_ = viper.BindEnv("ses_sender_email", strings.ToUpper("ses_sender_email"))
+	_ = viper.BindEnv("media_bucket", strings.ToUpper("media_bucket"))
+	_ = viper.BindEnv("converter_service", strings.ToUpper("converter_service"))
+	_ = viper.BindEnv("image_proxy_service", strings.ToUpper("image_proxy_service"))
 }
 
 func (config *Config) GetDatabaseDsn() string {
