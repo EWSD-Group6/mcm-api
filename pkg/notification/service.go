@@ -25,28 +25,36 @@ type Service struct {
 	ses *ses.SES
 }
 
+type Destination struct {
+	ToAddresses  []string
+	CcAddresses  []string
+	BccAddresses []string
+}
+
 func InitializeService(cfg *config.Config) *Service {
 	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String("us-west-2")},
+		Region: aws.String("ap-southeast-1")},
 	)
 	if err != nil {
 		log.Logger.Panic("failed to init notification service", zap.Error(err))
 	}
 	svc := ses.New(sess)
 	return &Service{
-		cfg: nil,
+		cfg: cfg,
 		ses: svc,
 	}
 }
 
-func (s Service) sendEmail(tmpl EmailTemplate, payload interface{}) error {
+func (s Service) sendEmail(destination *Destination, tmpl EmailTemplate, payload interface{}) error {
 	body, subject, err := generateBodyAndSubject(tmpl, payload)
 	if err != nil {
 		return err
 	}
 	output, err := s.ses.SendEmail(&ses.SendEmailInput{
 		Destination: &ses.Destination{
-			ToAddresses: nil,
+			BccAddresses: aws.StringSlice(destination.BccAddresses),
+			CcAddresses:  aws.StringSlice(destination.CcAddresses),
+			ToAddresses:  aws.StringSlice(destination.ToAddresses),
 		},
 		Message: &ses.Message{
 			Body: &ses.Body{
@@ -85,7 +93,7 @@ func init() {
 func generateBodyAndSubject(tmpl EmailTemplate, payload interface{}) (string, string, error) {
 	switch tmpl {
 	case NewContributionTemplate:
-		if v, ok := payload.(TemplateNewContributionPayLoad); ok {
+		if v, ok := payload.(*TemplateNewContributionPayLoad); ok {
 			buf := new(bytes.Buffer)
 			err := parsedTemplate.ExecuteTemplate(buf, string(NewContributionTemplate), v)
 			if err != nil {
@@ -99,6 +107,6 @@ func generateBodyAndSubject(tmpl EmailTemplate, payload interface{}) (string, st
 	}
 }
 
-func (s Service) SendNewContributionEmail(payload *TemplateNewContributionPayLoad) error {
-	return s.sendEmail(NewContributionTemplate, payload)
+func (s Service) SendNewContributionEmail(des *Destination, payload *TemplateNewContributionPayLoad) error {
+	return s.sendEmail(des, NewContributionTemplate, payload)
 }
