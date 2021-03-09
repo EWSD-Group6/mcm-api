@@ -3,7 +3,6 @@ package contribution
 import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"mcm-api/pkg/common"
-	"mcm-api/pkg/user"
 )
 
 type IndexQuery struct {
@@ -15,13 +14,26 @@ type IndexQuery struct {
 }
 
 type ContributionRes struct {
-	Id                  int64             `json:"id"`
-	User                user.UserResponse `json:"user"`
-	ContributeSessionId int64             `json:"contributeSessionId"`
-	ArticleId           int64             `json:"articleId"`
-	Images              []string          `json:"images"`
-	Status              Status            `json:"status"`
+	Id                  int64   `json:"id"`
+	User                UserRes `json:"user"`
+	ContributeSessionId int     `json:"contributeSessionId"`
+	ArticleId           *int    `json:"articleId"`
+	Status              Status  `json:"status"`
 	common.TrackTime
+}
+
+type UserRes struct {
+	Id        int         `json:"id"`
+	Name      string      `json:"name"`
+	Email     string      `json:"email"`
+	FacultyId *int        `json:"facultyId"`
+	Role      common.Role `json:"role"`
+}
+
+type ImageRes struct {
+	Key   string `json:"key"`
+	Title string `json:"title"`
+	Link  string `json:"link"`
 }
 
 type ArticleReq struct {
@@ -39,8 +51,8 @@ func (r *ArticleReq) Validate() error {
 }
 
 type ContributionCreateReq struct {
-	Article ArticleReq `json:"article"`
-	Images  []string   `json:"images"`
+	Article *ArticleReq      `json:"article"`
+	Images  []ImageCreateReq `json:"images"`
 }
 
 func (r *ContributionCreateReq) Validate() error {
@@ -49,9 +61,21 @@ func (r *ContributionCreateReq) Validate() error {
 	)
 }
 
+type ImageCreateReq struct {
+	Key   string `json:"key"`
+	Title string `json:"title"`
+}
+
+func (c ImageCreateReq) Validate() error {
+	return validation.ValidateStruct(&c,
+		validation.Field(&c.Key, validation.Required),
+		validation.Field(&c.Title, validation.Length(0, 200)),
+	)
+}
+
 type ContributionUpdateReq struct {
-	Article ArticleReq `json:"article"`
-	Images  []string   `json:"images"`
+	Article ArticleReq       `json:"article"`
+	Images  []ImageCreateReq `json:"images"`
 }
 
 func (r *ContributionUpdateReq) Validate() error {

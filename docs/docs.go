@@ -6,8 +6,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"strings"
-	"text/template"
 
+	"github.com/alecthomas/template"
 	"github.com/swaggo/swag"
 )
 
@@ -1287,15 +1287,21 @@ var doc = `{
                 "versions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/article.ArticleVersionRes"
+                        "$ref": "#/definitions/article.Version"
                     }
                 }
             }
         },
-        "article.ArticleVersionRes": {
+        "article.Version": {
             "type": "object",
             "properties": {
+                "articleId": {
+                    "type": "integer"
+                },
                 "createdAt": {
+                    "type": "string"
+                },
+                "hash": {
                     "type": "string"
                 },
                 "id": {
@@ -1485,7 +1491,7 @@ var doc = `{
                 "images": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/contribution.ImageCreateReq"
                     }
                 }
             }
@@ -1505,12 +1511,6 @@ var doc = `{
                 "id": {
                     "type": "integer"
                 },
-                "images": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
                 "status": {
                     "type": "string"
                 },
@@ -1518,7 +1518,7 @@ var doc = `{
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/user.UserResponse"
+                    "$ref": "#/definitions/contribution.UserRes"
                 }
             }
         },
@@ -1531,8 +1531,39 @@ var doc = `{
                 "images": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/contribution.ImageCreateReq"
                     }
+                }
+            }
+        },
+        "contribution.ImageCreateReq": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "contribution.UserRes": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "facultyId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
                 }
             }
         },

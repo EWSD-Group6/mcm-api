@@ -1,29 +1,31 @@
 package article
 
 import (
-	"gorm.io/datatypes"
 	"time"
 )
 
-type Status string
-
-const (
-	Accepted  Status = "accepted"
-	Rejected  Status = "rejected"
-	Reviewing Status = "reviewing"
-)
-
 type Entity struct {
-	Id                  int64
-	UserId              int64
-	ContributeSessionId int64
-	ArticleId           int64
-	Images              datatypes.JSON
-	Status              Status
-	CreatedAt           time.Time
-	UpdatedAt           time.Time
+	Id          int
+	Title       string
+	Description string
+	Versions    []Version `gorm:"foreignKey:ArticleId"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 func (e *Entity) TableName() string {
-	return "contributions"
+	return "articles"
+}
+
+type Version struct {
+	Id           int
+	Hash         string
+	ArticleId    int
+	LinkOriginal string
+	LinkPdf      string
+	CreatedAt    time.Time
+}
+
+func (v Version) TableName() string {
+	return "article_versions"
 }

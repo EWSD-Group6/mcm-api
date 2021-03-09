@@ -7,6 +7,7 @@ package server
 
 import (
 	"mcm-api/internal/core"
+	"mcm-api/pkg/article"
 	"mcm-api/pkg/authz"
 	"mcm-api/pkg/contributesession"
 	"mcm-api/pkg/contribution"
@@ -44,7 +45,9 @@ func InitializeServer() *Server {
 	contributionRepository := contribution.InitializeRepository(db)
 	client := core.ProvideRedis(config)
 	queueQueue := queue.InitializeRedisQueue(config, client)
-	contributionService := contribution.InitializeService(config, contributionRepository, queueQueue, contributesessionService)
+	articleRepository := article.InitializeRepository(db)
+	articleService := article.InitializeService(config, articleRepository, mediaService)
+	contributionService := contribution.InitializeService(config, contributionRepository, queueQueue, contributesessionService, articleService)
 	contributionHandler := contribution.NewHandler(config, contributionService)
 	server := newServer(config, startupService, handler, userHandler, documentHandler, facultyHandler, mediaHandler, contributesessionHandler, contributionHandler)
 	return server

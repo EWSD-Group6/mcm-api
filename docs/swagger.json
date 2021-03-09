@@ -1268,26 +1268,32 @@
                 "versions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/article.ArticleVersionRes"
+                        "$ref": "#/definitions/article.Version"
                     }
                 }
             }
         },
-        "article.ArticleVersionRes": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "linkOriginal": {
-                    "type": "string"
-                },
-                "linkPdf": {
-                    "type": "string"
-                }
+      "article.Version": {
+        "type": "object",
+        "properties": {
+          "articleId": {
+            "type": "integer"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "hash": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "linkOriginal": {
+            "type": "string"
+          },
+          "linkPdf": {
+            "type": "string"
+          }
             }
         },
         "authz.LoginRequest": {
@@ -1466,7 +1472,7 @@
                 "images": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                      "$ref": "#/definitions/contribution.ImageCreateReq"
                     }
                 }
             }
@@ -1486,12 +1492,6 @@
                 "id": {
                     "type": "integer"
                 },
-                "images": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
                 "status": {
                     "type": "string"
                 },
@@ -1499,31 +1499,62 @@
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/user.UserResponse"
+                  "$ref": "#/definitions/contribution.UserRes"
                 }
             }
         },
-        "contribution.ContributionUpdateReq": {
-            "type": "object",
-            "properties": {
-                "article": {
-                    "$ref": "#/definitions/contribution.ArticleReq"
-                },
-                "images": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
+      "contribution.ContributionUpdateReq": {
+        "type": "object",
+        "properties": {
+          "article": {
+            "$ref": "#/definitions/contribution.ArticleReq"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/contribution.ImageCreateReq"
             }
-        },
-        "faculty.FacultyCreateReq": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                }
-            }
+          }
+        }
+      },
+      "contribution.ImageCreateReq": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "contribution.UserRes": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "facultyId": {
+            "type": "integer"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        }
+      },
+      "faculty.FacultyCreateReq": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
         },
         "faculty.FacultyResponse": {
             "type": "object",

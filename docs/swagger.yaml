@@ -13,12 +13,16 @@ definitions:
         type: string
       versions:
         items:
-          $ref: '#/definitions/article.ArticleVersionRes'
+          $ref: '#/definitions/article.Version'
         type: array
     type: object
-  article.ArticleVersionRes:
+  article.Version:
     properties:
+      articleId:
+        type: integer
       createdAt:
+        type: string
+      hash:
         type: string
       id:
         type: integer
@@ -141,7 +145,7 @@ definitions:
         $ref: '#/definitions/contribution.ArticleReq'
       images:
         items:
-          type: string
+          $ref: '#/definitions/contribution.ImageCreateReq'
         type: array
     type: object
   contribution.ContributionRes:
@@ -154,16 +158,12 @@ definitions:
         type: string
       id:
         type: integer
-      images:
-        items:
-          type: string
-        type: array
       status:
         type: string
       updatedAt:
         type: string
       user:
-        $ref: '#/definitions/user.UserResponse'
+        $ref: '#/definitions/contribution.UserRes'
     type: object
   contribution.ContributionUpdateReq:
     properties:
@@ -171,8 +171,28 @@ definitions:
         $ref: '#/definitions/contribution.ArticleReq'
       images:
         items:
-          type: string
+          $ref: '#/definitions/contribution.ImageCreateReq'
         type: array
+    type: object
+  contribution.ImageCreateReq:
+    properties:
+      key:
+        type: string
+      title:
+        type: string
+    type: object
+  contribution.UserRes:
+    properties:
+      email:
+        type: string
+      facultyId:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      role:
+        type: string
     type: object
   faculty.FacultyCreateReq:
     properties:

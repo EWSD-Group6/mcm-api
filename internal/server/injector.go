@@ -5,6 +5,7 @@ package server
 import (
 	"github.com/google/wire"
 	"mcm-api/internal/core"
+	"mcm-api/pkg/article"
 	"mcm-api/pkg/authz"
 	"mcm-api/pkg/contributesession"
 	"mcm-api/pkg/contribution"
@@ -26,7 +27,7 @@ func InitializeServer() *Server {
 		media.Set,
 		contributesession.Set,
 		contribution.Set,
-
+		article.Set,
 		core.HandlerSet,
 		newServer,
 	))

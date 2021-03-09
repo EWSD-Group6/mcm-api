@@ -1,7 +1,7 @@
 package contribution
 
 import (
-	"gorm.io/datatypes"
+	"mcm-api/pkg/user"
 	"time"
 )
 
@@ -15,15 +15,26 @@ const (
 
 type Entity struct {
 	Id                  int64
-	UserId              int64
-	ContributeSessionId int64
-	ArticleId           int64
-	Images              datatypes.JSON
+	UserId              int
+	User                user.Entity `gorm:"foreignKey:UserId"`
+	ContributeSessionId int
+	ArticleId           *int
 	Status              Status
+	Images              []ImageEntity `gorm:"foreignKey:ContributionId"`
 	CreatedAt           time.Time
 	UpdatedAt           time.Time
 }
 
-func (e *Entity) TableName() string {
+func (e Entity) TableName() string {
 	return "contributions"
+}
+
+type ImageEntity struct {
+	Key            string
+	ContributionId int
+	Title          string
+}
+
+func (i ImageEntity) TableName() string {
+	return "images"
 }

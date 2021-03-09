@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
@@ -41,6 +42,7 @@ const (
 )
 
 type Service interface {
+	ExistFile(ctx context.Context, key string) bool
 	GetUrl(ctx context.Context, key string) (string, error)
 	GetImageLink(key string) string
 	GetFile(ctx context.Context, key string) (io.ReadCloser, error)
@@ -122,10 +124,26 @@ func (s S3StorageService) GetFile(ctx context.Context, key string) (io.ReadClose
 				Bucket: aws.String(s.config.MediaBucket),
 			})
 		if err != nil {
+			if v, ok := err.(awserr.Error); ok {
+				if v.Code() == s3.ErrCodeNoSuchKey {
+					return nil, apperror.New(apperror.ErrNotFound, "file not found", err)
+				}
+			}
 			return nil, err
 		}
 		return object.Body, err
 	}
+}
+
+func (s S3StorageService) ExistFile(ctx context.Context, key string) bool {
+	_, err := s.s3.HeadObjectWithContext(ctx, &s3.HeadObjectInput{
+		Key:    aws.String(key),
+		Bucket: aws.String(s.config.MediaBucket),
+	})
+	if err != nil {
+		return false
+	}
+	return true
 }
 
 func (s S3StorageService) GetImageLink(key string) string {
