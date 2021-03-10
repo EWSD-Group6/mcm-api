@@ -13,6 +13,7 @@ import (
 	"mcm-api/pkg/common"
 	"mcm-api/pkg/log"
 	"mcm-api/pkg/media"
+	"mcm-api/pkg/queue"
 	"time"
 )
 
@@ -20,17 +21,20 @@ type Service struct {
 	cfg          *config.Config
 	repository   *repository
 	mediaService media.Service
+	queue        queue.Queue
 }
 
 func InitializeService(
 	cfg *config.Config,
 	repository *repository,
 	mediaService media.Service,
+	queue queue.Queue,
 ) *Service {
 	return &Service{
 		cfg:          cfg,
 		repository:   repository,
 		mediaService: mediaService,
+		queue:        queue,
 	}
 }
 
@@ -72,7 +76,30 @@ func (s Service) Create(ctx context.Context, req *ArticleReq) (*ArticleRes, erro
 	if err != nil {
 		return nil, err
 	}
+	user, err := common.GetLoggedInUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	s.addToQueue(user, entity.Versions[0])
 	return s.mapArticleToRes(entity), nil
+}
+
+func (s Service) addToQueue(user *common.LoggedInUser, entity *Version) {
+	go func() {
+		ctxTimeout, cancelFunc := context.WithTimeout(context.Background(), time.Second*2)
+		defer cancelFunc()
+		er := s.queue.Add(ctxTimeout, &queue.Message{
+			Topic: queue.ArticleUploaded,
+			Data: &queue.ArticleUploadedPayload{
+				ArticleId: entity.Id,
+				Link:      entity.LinkOriginal,
+				User:      *user,
+			},
+		})
+		if er != nil {
+			log.Logger.Error("add message to queue failed", zap.Error(er))
+		}
+	}()
 }
 
 func (s Service) Update(ctx context.Context, articleId int, req ArticleReq) (*ArticleRes, error) {
@@ -126,6 +153,11 @@ func (s Service) CreateVersion(ctx context.Context, articleId int, link string) 
 	if err != nil {
 		return nil, err
 	}
+	user, err := common.GetLoggedInUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	s.addToQueue(user, version)
 	return version, nil
 }
 
@@ -174,4 +206,16 @@ func (s Service) mapVersionsToRes(vs ...*Version) []*VersionRes {
 		results = append(results, res)
 	}
 	return results
+}
+
+func (s Service) UpdateLinkPdfForVersion(ctx context.Context, id int, key string) error {
+	entity, err := s.repository.FindVersionById(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperror.New(apperror.ErrNotFound, "article version not found", err)
+		}
+		return err
+	}
+	entity.LinkPdf = key
+	return s.repository.UpdateVersion(ctx, entity)
 }

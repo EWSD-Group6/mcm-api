@@ -46,7 +46,7 @@ func InitializeServer() *Server {
 	client := core.ProvideRedis(config)
 	queueQueue := queue.InitializeRedisQueue(config, client)
 	articleRepository := article.InitializeRepository(db)
-	articleService := article.InitializeService(config, articleRepository, mediaService)
+	articleService := article.InitializeService(config, articleRepository, mediaService, queueQueue)
 	contributionService := contribution.InitializeService(config, contributionRepository, queueQueue, contributesessionService, articleService, mediaService)
 	contributionHandler := contribution.NewHandler(config, contributionService)
 	articleHandler := article.NewHandler(config, articleService)

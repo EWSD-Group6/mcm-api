@@ -7,6 +7,9 @@ package worker
 
 import (
 	"mcm-api/internal/core"
+	"mcm-api/pkg/article"
+	"mcm-api/pkg/converter"
+	"mcm-api/pkg/media"
 	"mcm-api/pkg/queue"
 )
 
@@ -16,6 +19,12 @@ func InitializeWorker() *worker {
 	config := core.ProvideConfig()
 	client := core.ProvideRedis(config)
 	queueQueue := queue.InitializeRedisQueue(config, client)
-	workerWorker := newWorker(config, queueQueue)
+	imageProxyService := media.NewDarthsimImageProxyService(config)
+	service := media.NewStorageService(config, imageProxyService)
+	documentConverter := converter.NewGotenbergDocumentConverter(config, service)
+	db := core.ProvideDB(config)
+	repository := article.InitializeRepository(db)
+	articleService := article.InitializeService(config, repository, service, queueQueue)
+	workerWorker := newWorker(config, queueQueue, documentConverter, articleService)
 	return workerWorker
 }

@@ -6,21 +6,33 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"mcm-api/config"
+	"mcm-api/pkg/article"
+	"mcm-api/pkg/converter"
 	"mcm-api/pkg/log"
 	"mcm-api/pkg/queue"
 	"os"
 	"os/signal"
+	"time"
 )
 
 type worker struct {
-	cfg   *config.Config
-	queue queue.Queue
+	cfg            *config.Config
+	queue          queue.Queue
+	converter      converter.DocumentConverter
+	articleService *article.Service
 }
 
-func newWorker(config *config.Config, queue queue.Queue) *worker {
+func newWorker(
+	config *config.Config,
+	queue queue.Queue,
+	converter converter.DocumentConverter,
+	articleService *article.Service,
+) *worker {
 	return &worker{
-		cfg:   config,
-		queue: queue,
+		cfg:            config,
+		queue:          queue,
+		converter:      converter,
+		articleService: articleService,
 	}
 }
 
@@ -54,29 +66,41 @@ poolQueueLoop:
 				continue
 			}
 			log.Logger.Info("receive message", zap.Any("message", message))
-			err = handleMessage(message)
+			ctxTimeout, cancelFunc := context.WithTimeout(context.Background(), time.Minute*5)
+			err = w.handleMessage(ctxTimeout, message)
+			cancelFunc()
 			if err != nil {
 				log.Logger.Error("process message error", zap.Error(err))
+			} else {
+				log.Logger.Info("finish process message", zap.Any("message", message))
 			}
 		}
 	}
 }
 
-func handleMessage(message *queue.Message) error {
+func (w worker) handleMessage(ctx context.Context, message *queue.Message) error {
 	switch message.Topic {
 	case queue.ContributionCreated:
-		return contributionCreatedHandler(message)
+		return w.contributionCreatedHandler(ctx, message)
 	case queue.ArticleUploaded:
-		return articleUploadedHandler(message)
+		return w.articleUploadedHandler(ctx, message)
 	default:
 		return fmt.Errorf("unknown topic %v", message.Topic)
 	}
 }
 
-func contributionCreatedHandler(message *queue.Message) error {
+func (w worker) contributionCreatedHandler(ctx context.Context, message *queue.Message) error {
 	return nil
 }
 
-func articleUploadedHandler(message *queue.Message) error {
-	return nil
+func (w worker) articleUploadedHandler(ctx context.Context, message *queue.Message) error {
+	if v, ok := message.Data.(queue.ArticleUploadedPayload); ok {
+		result, err := w.converter.Convert(ctx, v.Link, v.User)
+		if err != nil {
+			return err
+		}
+		return w.articleService.UpdateLinkPdfForVersion(ctx, v.ArticleId, result.Key)
+	} else {
+		return errors.New("unknown message")
+	}
 }

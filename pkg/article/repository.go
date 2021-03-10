@@ -54,3 +54,13 @@ func (r repository) Delete(ctx context.Context, id int) error {
 	db = builder.Delete(&Entity{}, id)
 	return db.Error
 }
+
+func (r repository) FindVersionById(ctx context.Context, id int) (*Version, error) {
+	var entity = new(Version)
+	db := r.db.WithContext(ctx).First(&entity, id)
+	return entity, db.Error
+}
+
+func (r repository) UpdateVersion(ctx context.Context, version *Version) error {
+	return r.db.WithContext(ctx).Save(version).Error
+}

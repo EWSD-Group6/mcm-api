@@ -60,10 +60,11 @@ func (r *RedisQueue) Pop(ctx context.Context) (*Message, error) {
 	if p.Err() != nil {
 		return nil, p.Err()
 	}
+	messageStr := []byte(p.Val()[1])
 	m := new(Message)
-	err := json.Unmarshal([]byte(p.Val()[0]), m)
+	err := json.Unmarshal(messageStr, m)
 	if err != nil {
-		log.Logger.Error("malformed message", zap.Error(err))
+		log.Logger.Error("malformed message", zap.Error(err), zap.ByteString("message", messageStr))
 		return nil, nil
 	}
 	return m, nil
