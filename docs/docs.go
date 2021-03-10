@@ -125,8 +125,13 @@ var doc = `{
                         "in": "query"
                     },
                     {
-                        "type": "integer",
-                        "name": "page",
+                        "type": "string",
+                        "name": "next",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "prev",
                         "in": "query"
                     }
                 ],

@@ -3,11 +3,12 @@ package comment
 import (
 	"mcm-api/pkg/common"
 	"mcm-api/pkg/user"
+	"time"
 )
 
 type IndexQuery struct {
 	ContributionId int64 `query:"contributionId" validate:"required"`
-	common.PaginateQuery
+	common.CursorQuery
 }
 
 type CommentRes struct {
@@ -24,4 +25,9 @@ type CommentCreateReq struct {
 
 type CommentUpdateReq struct {
 	Content string `json:"content"`
+}
+
+type CursorPayload struct {
+	Id        string
+	CreatedAt time.Time
 }

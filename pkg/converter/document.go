@@ -41,7 +41,7 @@ func (r GotenbergDocumentConverter) Convert(ctx context.Context, key string, use
 	w := multipart.NewWriter(writer)
 	go func() {
 		// TODO improve error handling in this goroutine
-		fw, er := w.CreateFormFile("files", "file.docx")
+		fw, er := w.CreateFormFile("files", key)
 		if er != nil {
 			log.Logger.Error("create form file failed", zap.Error(err))
 			return

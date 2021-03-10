@@ -2,7 +2,6 @@ package comment
 
 import (
 	"context"
-	"github.com/casbin/casbin/v2"
 	"mcm-api/config"
 	"mcm-api/pkg/common"
 )
@@ -10,34 +9,32 @@ import (
 type Service struct {
 	cfg        *config.Config
 	repository *repository
-	enforcer   *casbin.Enforcer
 }
 
 func InitializeService(
 	cfg *config.Config,
 	repository *repository,
-	enforcer *casbin.Enforcer,
 ) *Service {
 	return &Service{
 		cfg:        cfg,
 		repository: repository,
-		enforcer:   enforcer,
 	}
 }
 
-func (s Service) Find(ctx context.Context, query *IndexQuery) (*common.PaginateResponse, error) {
+func (s Service) Find(ctx context.Context, query *IndexQuery) (*common.CursorResponse, error) {
+	s.repository.Find(ctx, query)
 	return nil, nil
 }
 
-func (s Service) FindById(ctx context.Context, id int) (*ContributionRes, error) {
+func (s Service) FindById(ctx context.Context, id int) (*CommentRes, error) {
 	return nil, nil
 }
 
-func (s Service) Create(ctx context.Context, body *ContributionCreateReq) (*ContributionRes, error) {
+func (s Service) Create(ctx context.Context, body *CommentCreateReq) (*CommentRes, error) {
 	return nil, nil
 }
 
-func (s Service) Update(ctx context.Context, id int, body *ContributionUpdateReq) (*ContributionRes, error) {
+func (s Service) Update(ctx context.Context, id int, body *CommentUpdateReq) (*CommentRes, error) {
 	return nil, nil
 }
 

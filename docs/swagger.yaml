@@ -334,8 +334,11 @@ paths:
         name: limit
         type: integer
       - in: query
-        name: page
-        type: integer
+        name: next
+        type: string
+      - in: query
+        name: prev
+        type: string
       produces:
       - application/json
       responses:
@@ -698,30 +701,30 @@ paths:
         schema:
           $ref: '#/definitions/contribution.ContributionUpdateReq'
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
             $ref: '#/definitions/contribution.ContributionRes'
       security:
-        - ApiKeyAuth: [ ]
+      - ApiKeyAuth: []
       summary: Update a contribution
       tags:
-        - Contributions
+      - Contributions
   /contributions/{id}/images:
     get:
       consumes:
-        - application/json
+      - application/json
       description: Get contribution images
       parameters:
-        - description: ID
-          in: path
-          name: id
-          required: true
-          type: integer
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
@@ -730,22 +733,22 @@ paths:
               $ref: '#/definitions/contribution.ImageRes'
             type: array
       security:
-        - ApiKeyAuth: [ ]
+      - ApiKeyAuth: []
       summary: Get contribution images
       tags:
-        - Contributions
+      - Contributions
   /faculties:
     get:
       consumes:
-        - application/json
+      - application/json
       description: List faculties
       parameters:
-        - in: query
-          name: limit
-          type: integer
-        - in: query
-          name: page
-          type: integer
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: page
+        type: integer
       produces:
       - application/json
       responses:

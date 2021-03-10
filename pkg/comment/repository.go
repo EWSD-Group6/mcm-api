@@ -21,13 +21,15 @@ func (r repository) FindById(ctx context.Context, id int) (*Entity, error) {
 	return result, db.Error
 }
 
-func (r repository) Find(ctx context.Context, query *IndexQuery) ([]*Entity, error) {
-	var results []*Entity
-	r.db.WithContext(ctx)
-	r.db.Limit(query.GetLimit())
-	r.db.Offset(query.GetOffSet())
-	db := r.db.Find(results)
-	return results, db.Error
+func (r repository) Find(ctx context.Context, query *IndexQuery) ([]*Entity, *CursorPayload, *CursorPayload, error) {
+	builder := r.db.WithContext(ctx)
+	if query.Next != "" {
+		var nextPayload CursorPayload
+		err := query.GetNext(&nextPayload)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+	}
 }
 
 func (r repository) Create(ctx context.Context, entity *Entity) (*Entity, error) {
