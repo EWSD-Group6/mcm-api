@@ -3,14 +3,17 @@ package contribution
 import (
 	"context"
 	"errors"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"mcm-api/config"
 	"mcm-api/pkg/apperror"
 	"mcm-api/pkg/article"
 	"mcm-api/pkg/common"
 	"mcm-api/pkg/contributesession"
+	"mcm-api/pkg/log"
 	"mcm-api/pkg/media"
 	"mcm-api/pkg/queue"
+	"time"
 )
 
 type Service struct {
@@ -147,7 +150,26 @@ func (s Service) Create(ctx context.Context, body *ContributionCreateReq) (*Cont
 	if err != nil {
 		return nil, err
 	}
+	go s.addToQueue(*loggedInUser, entity)
 	return mapContributionToRes(entity), nil
+}
+
+func (s Service) addToQueue(user common.LoggedInUser, contribution *Entity) {
+	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancelFunc()
+	err := s.queue.Add(ctx, &queue.Message{
+		Topic: queue.ContributionCreated,
+		Data: &queue.ContributionCreatedPayload{
+			ContributionId: contribution.Id,
+			UserId:         user.Id,
+			UserName:       user.Name,
+			FacultyId:      *user.FacultyId,
+			User:           user,
+		},
+	})
+	if err != nil {
+		log.Logger.Error("add to queue failed", zap.Error(err))
+	}
 }
 
 func (s Service) Update(ctx context.Context, id int, body *ContributionUpdateReq) (*ContributionRes, error) {

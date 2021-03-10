@@ -702,66 +702,66 @@
                         "description": "ID",
                         "name": "id",
                         "in": "path",
-                      "required": true
+                        "required": true
                     }
                 ],
-              "responses": {
-                "200": {
-                  "description": ""
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
                 }
-              }
             }
         },
-      "/contributions/{id}/images": {
-        "get": {
-          "security": [
-            {
-              "ApiKeyAuth": []
-            }
-          ],
-          "description": "Get contribution images",
-          "consumes": [
-            "application/json"
-          ],
-          "produces": [
-            "application/json"
-          ],
-          "tags": [
-            "Contributions"
-          ],
-          "summary": "Get contribution images",
-          "parameters": [
-            {
-              "type": "integer",
-              "description": "ID",
-              "name": "id",
-              "in": "path",
-              "required": true
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "OK",
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/definitions/contribution.ImageRes"
+        "/contributions/{id}/images": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get contribution images",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Contributions"
+                ],
+                "summary": "Get contribution images",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/contribution.ImageRes"
+                            }
+                        }
+                    }
                 }
-              }
             }
-          }
-        }
-      },
-      "/faculties": {
-        "get": {
-          "security": [
-            {
-              "ApiKeyAuth": []
-            }
-          ],
-          "description": "List faculties",
-          "consumes": [
-            "application/json"
+        },
+        "/faculties": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "List faculties",
+                "consumes": [
+                    "application/json"
                 ],
                 "produces": [
                     "application/json"
@@ -1303,53 +1303,53 @@
                     "type": "string"
                 },
                 "updatedAt": {
-                  "type": "string"
+                    "type": "string"
                 },
-              "versions": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/definitions/article.VersionRes"
+                "versions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/article.VersionRes"
+                    }
                 }
-              }
             }
         },
-      "article.VersionRes": {
-        "type": "object",
-        "properties": {
-          "articleId": {
-            "type": "integer"
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "hash": {
-            "type": "string"
-          },
-          "id": {
-            "type": "integer"
-          },
-          "linkOriginal": {
-            "type": "string"
-          },
-          "linkOriginalCdn": {
-            "type": "string"
-          },
-          "linkPdf": {
-            "type": "string"
-          },
-          "linkPdfCdn": {
-            "type": "string"
-          }
-        }
-      },
-      "authz.LoginRequest": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
+        "article.VersionRes": {
+            "type": "object",
+            "properties": {
+                "articleId": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "hash": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "linkOriginal": {
+                    "type": "string"
+                },
+                "linkOriginalCdn": {
+                    "type": "string"
+                },
+                "linkPdf": {
+                    "type": "string"
+                },
+                "linkPdfCdn": {
+                    "type": "string"
+                }
+            }
+        },
+        "authz.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
                 }
             }
         },
@@ -1518,7 +1518,7 @@
                 "images": {
                     "type": "array",
                     "items": {
-                      "$ref": "#/definitions/contribution.ImageCreateReq"
+                        "$ref": "#/definitions/contribution.ImageCreateReq"
                     }
                 }
             }
@@ -1539,92 +1539,92 @@
                     "type": "integer"
                 },
                 "status": {
-                  "type": "string"
+                    "type": "string"
                 },
-              "updatedAt": {
-                "type": "string"
-              },
-              "user": {
-                "$ref": "#/definitions/contribution.UserRes"
-              }
+                "updatedAt": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/contribution.UserRes"
+                }
             }
         },
-      "contribution.ContributionUpdateReq": {
-        "type": "object",
-        "properties": {
-          "article": {
-            "$ref": "#/definitions/contribution.ArticleReq"
-          },
-          "images": {
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/contribution.ImageCreateReq"
+        "contribution.ContributionUpdateReq": {
+            "type": "object",
+            "properties": {
+                "article": {
+                    "$ref": "#/definitions/contribution.ArticleReq"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/contribution.ImageCreateReq"
+                    }
+                }
             }
-          }
-        }
-      },
-      "contribution.ImageCreateReq": {
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          }
-        }
-      },
-      "contribution.ImageRes": {
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": "string"
-          },
-          "link": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          }
-        }
-      },
-      "contribution.UserRes": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "facultyId": {
-            "type": "integer"
-          },
-          "id": {
-            "type": "integer"
-          },
-          "name": {
-            "type": "string"
-          },
-          "role": {
-            "type": "string"
-          }
-        }
-      },
-      "faculty.FacultyCreateReq": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          }
-        }
-      },
-      "faculty.FacultyResponse": {
-        "type": "object",
-        "properties": {
-          "createdAt": {
-            "type": "string"
-          },
-          "id": {
-            "type": "integer"
-          },
+        },
+        "contribution.ImageCreateReq": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "contribution.ImageRes": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "contribution.UserRes": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "facultyId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "faculty.FacultyCreateReq": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "faculty.FacultyResponse": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 },

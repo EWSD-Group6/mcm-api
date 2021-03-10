@@ -203,6 +203,13 @@ func (s Service) mapVersionsToRes(vs ...*Version) []*VersionRes {
 			log.Logger.Error("error get url", zap.Error(err))
 		}
 		res.LinkOriginalCdn = url
+		if v.LinkPdf != "" {
+			url, err = s.mediaService.GetUrl(ctx, v.LinkPdf)
+			if err != nil {
+				log.Logger.Error("error get url", zap.Error(err))
+			}
+			res.LinkPdfCdn = url
+		}
 		results = append(results, res)
 	}
 	return results

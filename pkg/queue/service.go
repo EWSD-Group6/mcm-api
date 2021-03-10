@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/go-redis/redis/v8"
+	"github.com/mitchellh/mapstructure"
 	"go.uber.org/zap"
 	"mcm-api/config"
 	"mcm-api/pkg/log"
@@ -65,6 +66,33 @@ func (r *RedisQueue) Pop(ctx context.Context) (*Message, error) {
 	err := json.Unmarshal(messageStr, m)
 	if err != nil {
 		log.Logger.Error("malformed message", zap.Error(err), zap.ByteString("message", messageStr))
+		return nil, nil
+	}
+	switch m.Topic {
+	case ArticleUploaded:
+		payload := &ArticleUploadedPayload{}
+		err = mapstructure.Decode(m.Data, payload)
+		if err != nil {
+			log.Logger.Error("decode payload failed",
+				zap.Error(err),
+				zap.ByteString("message", messageStr),
+			)
+			return nil, nil
+		}
+		m.Data = payload
+	case ContributionCreated:
+		payload := &ContributionCreatedPayload{}
+		err = mapstructure.Decode(m.Data, payload)
+		if err != nil {
+			log.Logger.Error("decode payload failed",
+				zap.Error(err),
+				zap.ByteString("message", messageStr),
+			)
+			return nil, nil
+		}
+		m.Data = payload
+	default:
+		log.Logger.Error("unknown topic", zap.Any("topic", m.Topic))
 		return nil, nil
 	}
 	return m, nil

@@ -8,6 +8,8 @@ import (
 	"mcm-api/pkg/article"
 	"mcm-api/pkg/converter"
 	"mcm-api/pkg/media"
+	"mcm-api/pkg/notification"
+	"mcm-api/pkg/user"
 )
 
 func InitializeWorker() *worker {
@@ -16,5 +18,7 @@ func InitializeWorker() *worker {
 		converter.Set,
 		article.Set,
 		media.Set,
+		notification.Set,
+		user.Set,
 		newWorker))
 }

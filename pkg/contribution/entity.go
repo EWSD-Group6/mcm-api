@@ -14,7 +14,7 @@ const (
 )
 
 type Entity struct {
-	Id                  int64
+	Id                  int
 	UserId              int
 	User                user.Entity `gorm:"foreignKey:UserId"`
 	ContributeSessionId int

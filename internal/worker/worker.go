@@ -7,19 +7,24 @@ import (
 	"go.uber.org/zap"
 	"mcm-api/config"
 	"mcm-api/pkg/article"
+	"mcm-api/pkg/common"
 	"mcm-api/pkg/converter"
 	"mcm-api/pkg/log"
+	"mcm-api/pkg/notification"
 	"mcm-api/pkg/queue"
+	"mcm-api/pkg/user"
 	"os"
 	"os/signal"
 	"time"
 )
 
 type worker struct {
-	cfg            *config.Config
-	queue          queue.Queue
-	converter      converter.DocumentConverter
-	articleService *article.Service
+	cfg                 *config.Config
+	queue               queue.Queue
+	converter           converter.DocumentConverter
+	articleService      *article.Service
+	notificationService *notification.Service
+	userService         *user.Service
 }
 
 func newWorker(
@@ -27,12 +32,16 @@ func newWorker(
 	queue queue.Queue,
 	converter converter.DocumentConverter,
 	articleService *article.Service,
+	notificationService *notification.Service,
+	userService *user.Service,
 ) *worker {
 	return &worker{
-		cfg:            config,
-		queue:          queue,
-		converter:      converter,
-		articleService: articleService,
+		cfg:                 config,
+		queue:               queue,
+		converter:           converter,
+		articleService:      articleService,
+		notificationService: notificationService,
+		userService:         userService,
 	}
 }
 
@@ -90,11 +99,35 @@ func (w worker) handleMessage(ctx context.Context, message *queue.Message) error
 }
 
 func (w worker) contributionCreatedHandler(ctx context.Context, message *queue.Message) error {
-	return nil
+	if v, ok := message.Data.(*queue.ContributionCreatedPayload); ok {
+		entities, err := w.userService.GetAllUserOfFaculty(ctx, common.MarketingCoordinator, v.FacultyId)
+		if err != nil {
+			return err
+		}
+		if len(entities) == 0 {
+			log.Logger.Info("not found any marketing coordinator to send email")
+			return nil
+		}
+		for _, marketingCoordinator := range entities {
+			err = w.notificationService.SendNewContributionEmail(
+				&notification.Destination{ToAddresses: []string{""}},
+				&notification.TemplateNewContributionPayLoad{
+					Name:        marketingCoordinator.Name,
+					StudentName: v.UserName,
+					Link:        "https://google.com",
+				})
+			if err != nil {
+				log.Logger.Error("send email failed", zap.Error(err))
+			}
+		}
+		return nil
+	} else {
+		return errors.New("unknown message")
+	}
 }
 
 func (w worker) articleUploadedHandler(ctx context.Context, message *queue.Message) error {
-	if v, ok := message.Data.(queue.ArticleUploadedPayload); ok {
+	if v, ok := message.Data.(*queue.ArticleUploadedPayload); ok {
 		result, err := w.converter.Convert(ctx, v.Link, v.User)
 		if err != nil {
 			return err

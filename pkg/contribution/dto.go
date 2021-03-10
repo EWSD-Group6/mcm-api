@@ -14,7 +14,7 @@ type IndexQuery struct {
 }
 
 type ContributionRes struct {
-	Id                  int64   `json:"id"`
+	Id                  int     `json:"id"`
 	User                UserRes `json:"user"`
 	ContributeSessionId int     `json:"contributeSessionId"`
 	ArticleId           *int    `json:"articleId"`

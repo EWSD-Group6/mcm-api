@@ -110,6 +110,10 @@ func (s *Service) Find(ctx context.Context, user *common.LoggedInUser, query *Us
 	return common.NewPaginateResponse(dtos, count, query.Page, query.GetLimit()), nil
 }
 
+func (s *Service) GetAllUserOfFaculty(ctx context.Context, role common.Role, facultyId int) ([]*Entity, error) {
+	return s.repository.FindAllUserOfFaculty(ctx, role, facultyId)
+}
+
 func mapEntitiesToResponse(entity []*Entity) []*UserResponse {
 	var result []*UserResponse
 	for i := range entity {

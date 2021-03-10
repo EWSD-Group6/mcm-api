@@ -13,6 +13,7 @@ require (
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/google/wire v0.5.0
 	github.com/labstack/echo/v4 v4.1.17
+	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/viper v1.7.1

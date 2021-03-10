@@ -10,7 +10,9 @@ import (
 	"mcm-api/pkg/article"
 	"mcm-api/pkg/converter"
 	"mcm-api/pkg/media"
+	"mcm-api/pkg/notification"
 	"mcm-api/pkg/queue"
+	"mcm-api/pkg/user"
 )
 
 // Injectors from injector.go:
@@ -25,6 +27,9 @@ func InitializeWorker() *worker {
 	db := core.ProvideDB(config)
 	repository := article.InitializeRepository(db)
 	articleService := article.InitializeService(config, repository, service, queueQueue)
-	workerWorker := newWorker(config, queueQueue, documentConverter, articleService)
+	notificationService := notification.InitializeService(config)
+	userRepository := user.InitializeRepository(db)
+	userService := user.InitializeService(config, userRepository)
+	workerWorker := newWorker(config, queueQueue, documentConverter, articleService, notificationService, userService)
 	return workerWorker
 }
