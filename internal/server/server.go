@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 	"mcm-api/config"
 	"mcm-api/docs"
+	"mcm-api/pkg/article"
 	"mcm-api/pkg/authz"
 	"mcm-api/pkg/contributesession"
 	"mcm-api/pkg/contribution"
@@ -33,6 +34,7 @@ type Server struct {
 	storage           *media.Handler
 	contributeSession *contributesession.Handler
 	contribution      *contribution.Handler
+	article           *article.Handler
 }
 
 func newServer(
@@ -45,6 +47,7 @@ func newServer(
 	storage *media.Handler,
 	contributeSession *contributesession.Handler,
 	contribution *contribution.Handler,
+	article *article.Handler,
 ) *Server {
 	e := echo.New()
 	e.HideBanner = true
@@ -67,6 +70,7 @@ func newServer(
 		storage:           storage,
 		contributeSession: contributeSession,
 		contribution:      contribution,
+		article:           article,
 	}
 }
 
@@ -78,6 +82,7 @@ func (s *Server) registerHandler() {
 	s.storage.Register(s.echo.Group("storage"))
 	s.contributeSession.Register(s.echo.Group("contribute-sessions"))
 	s.contribution.Register(s.echo.Group("contributions"))
+	s.article.Register(s.echo.Group("articles"))
 }
 
 // @securityDefinitions.apikey ApiKeyAuth

@@ -24,10 +24,11 @@ func NewHandler(config *config.Config, service *Service) *Handler {
 func (h *Handler) Register(group *echo.Group) {
 	group.Use(middleware.RequireAuthentication(h.config.JwtSecret))
 	group.GET("", h.index)
+	group.GET("/:id/images", h.images)
 	group.GET("/:id", h.getById)
 	group.POST("", h.create)
-	group.PUT(":id", h.update)
-	group.DELETE(":id", h.delete)
+	group.PUT("/:id", h.update)
+	group.DELETE("/:id", h.delete)
 }
 
 // @Tags Contributions
@@ -141,4 +142,25 @@ func (h *Handler) delete(context echo.Context) error {
 		return apperror.HandleError(err, context)
 	}
 	return context.NoContent(http.StatusNoContent)
+}
+
+// @Tags Contributions
+// @Summary Get contribution images
+// @Description Get contribution images
+// @Accept  json
+// @Produce  json
+// @Param id path int true "ID"
+// @Success 200 {array} contribution.ImageRes
+// @Security ApiKeyAuth
+// @Router /contributions/{id}/images [get]
+func (h *Handler) images(context echo.Context) error {
+	id, err := strconv.Atoi(context.Param("id"))
+	if err != nil {
+		return apperror.HandleError(err, context)
+	}
+	images, err := h.service.GetImages(context.Request().Context(), id)
+	if err != nil {
+		return apperror.HandleError(err, context)
+	}
+	return context.JSON(http.StatusOK, images)
 }

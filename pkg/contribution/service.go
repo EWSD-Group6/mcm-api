@@ -9,6 +9,7 @@ import (
 	"mcm-api/pkg/article"
 	"mcm-api/pkg/common"
 	"mcm-api/pkg/contributesession"
+	"mcm-api/pkg/media"
 	"mcm-api/pkg/queue"
 )
 
@@ -18,6 +19,7 @@ type Service struct {
 	queue                    queue.Queue
 	contributeSessionService *contributesession.Service
 	articleService           *article.Service
+	mediaService             media.Service
 }
 
 func InitializeService(
@@ -26,6 +28,7 @@ func InitializeService(
 	queue queue.Queue,
 	cs *contributesession.Service,
 	articleService *article.Service,
+	mediaService media.Service,
 ) *Service {
 	return &Service{
 		queue:                    queue,
@@ -33,6 +36,7 @@ func InitializeService(
 		repository:               repository,
 		contributeSessionService: cs,
 		articleService:           articleService,
+		mediaService:             mediaService,
 	}
 }
 
@@ -44,13 +48,13 @@ func (s Service) Find(ctx context.Context, query *IndexQuery) (*common.PaginateR
 	var result []*Entity
 	var count int64
 	switch loggedInUser.Role {
-	case common.MarketingManager:
+	case common.Administrator:
 		result, count, err = s.repository.FindAndCount(ctx, &IndexQuery{
 			PaginateQuery:         query.PaginateQuery,
 			FacultyId:             query.FacultyId,
 			StudentId:             query.StudentId,
 			ContributionSessionId: query.ContributionSessionId,
-			Status:                Accepted,
+			Status:                "",
 		})
 		if err != nil {
 			return nil, err
@@ -83,10 +87,23 @@ func (s Service) Find(ctx context.Context, query *IndexQuery) (*common.PaginateR
 		return nil, apperror.New(apperror.ErrForbidden, "", nil)
 	}
 
-	return common.NewPaginateResponse(result, count, query.Page, query.GetLimit()), nil
+	return common.NewPaginateResponse(
+		mapManyContributionToRes(result),
+		count,
+		query.Page,
+		query.GetLimit(),
+	), nil
 }
 
 func (s Service) FindById(ctx context.Context, id int) (*ContributionRes, error) {
+	entity, err := s.findById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return mapContributionToRes(entity), nil
+}
+
+func (s Service) findById(ctx context.Context, id int) (*Entity, error) {
 	entity, err := s.repository.FindById(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -94,7 +111,7 @@ func (s Service) FindById(ctx context.Context, id int) (*ContributionRes, error)
 		}
 		return nil, err
 	}
-	return mapContributionToRes(entity), nil
+	return entity, nil
 }
 
 func (s Service) Create(ctx context.Context, body *ContributionCreateReq) (*ContributionRes, error) {
@@ -134,11 +151,59 @@ func (s Service) Create(ctx context.Context, body *ContributionCreateReq) (*Cont
 }
 
 func (s Service) Update(ctx context.Context, id int, body *ContributionUpdateReq) (*ContributionRes, error) {
-	return nil, nil
+	entity, err := s.findById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if body.Article != nil {
+		_, err = s.articleService.Update(ctx, *entity.ArticleId, article.ArticleReq{
+			Title:       body.Article.Title,
+			Description: body.Article.Description,
+			Link:        body.Article.Link,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+	if body.Images != nil {
+		entity.Images = mapImageReqToEntity(body.Images...)
+		_, err = s.repository.Update(ctx, entity)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return mapContributionToRes(entity), nil
 }
 
 func (s Service) Delete(ctx context.Context, id int) error {
-	return nil
+	entity, err := s.repository.FindById(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		}
+		return err
+	}
+	err = s.repository.Delete(ctx, id)
+	if err != nil {
+		return err
+	}
+	return s.articleService.Delete(ctx, *entity.ArticleId)
+}
+
+func (s Service) GetImages(ctx context.Context, id int) ([]*ImageRes, error) {
+	entities, err := s.repository.GetImagesById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	var res []*ImageRes
+	for _, v := range entities {
+		res = append(res, &ImageRes{
+			Key:   v.Key,
+			Title: v.Title,
+			Link:  s.mediaService.GetImageLink(v.Key),
+		})
+	}
+	return res, nil
 }
 
 func mapImageReqToEntity(images ...ImageCreateReq) []ImageEntity {
@@ -170,4 +235,12 @@ func mapContributionToRes(c *Entity) *ContributionRes {
 			UpdatedAt: c.UpdatedAt,
 		},
 	}
+}
+
+func mapManyContributionToRes(entities []*Entity) []*ContributionRes {
+	var result []*ContributionRes
+	for _, v := range entities {
+		result = append(result, mapContributionToRes(v))
+	}
+	return result
 }

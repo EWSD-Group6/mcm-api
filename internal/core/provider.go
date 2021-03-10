@@ -12,6 +12,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"mcm-api/config"
+	"mcm-api/pkg/article"
 	"mcm-api/pkg/authz"
 	"mcm-api/pkg/contributesession"
 	"mcm-api/pkg/contribution"
@@ -70,4 +71,5 @@ var HandlerSet = wire.NewSet(
 	media.NewHandler,
 	contributesession.NewHandler,
 	contribution.NewHandler,
+	article.NewHandler,
 )

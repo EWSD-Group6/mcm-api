@@ -17,7 +17,7 @@ func InitializeRepository(db *gorm.DB) *repository {
 
 func (r repository) FindById(ctx context.Context, id int) (*Entity, error) {
 	result := new(Entity)
-	db := r.db.WithContext(ctx).First(result, id)
+	db := r.db.WithContext(ctx).Preload("User").First(result, id)
 	return result, db.Error
 }
 
@@ -41,7 +41,7 @@ func (r repository) Update(ctx context.Context, entity *Entity) (*Entity, error)
 }
 
 func (r repository) Delete(ctx context.Context, id int) error {
-	return r.db.WithContext(ctx).Delete(id).Error
+	return r.db.WithContext(ctx).Delete(&Entity{}, id).Error
 }
 
 func (r repository) FindAndCount(ctx context.Context, query *IndexQuery) ([]*Entity, int64, error) {
@@ -65,6 +65,12 @@ func (r repository) FindAndCount(ctx context.Context, query *IndexQuery) ([]*Ent
 		return nil, 0, nil
 	}
 	builder.Offset(query.GetOffSet()).Limit(query.GetLimit())
-	result = builder.Find(&entities)
+	result = builder.Preload("User").Find(&entities)
 	return entities, count, result.Error
+}
+
+func (r repository) GetImagesById(ctx context.Context, id int) ([]*ImageEntity, error) {
+	var entities []*ImageEntity
+	result := r.db.WithContext(ctx).Where("contribution_id = ?", id).Find(&entities)
+	return entities, result.Error
 }

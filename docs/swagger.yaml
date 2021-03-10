@@ -13,10 +13,10 @@ definitions:
         type: string
       versions:
         items:
-          $ref: '#/definitions/article.Version'
+          $ref: '#/definitions/article.VersionRes'
         type: array
     type: object
-  article.Version:
+  article.VersionRes:
     properties:
       articleId:
         type: integer
@@ -28,7 +28,11 @@ definitions:
         type: integer
       linkOriginal:
         type: string
+      linkOriginalCdn:
+        type: string
       linkPdf:
+        type: string
+      linkPdfCdn:
         type: string
     type: object
   authz.LoginRequest:
@@ -177,6 +181,15 @@ definitions:
   contribution.ImageCreateReq:
     properties:
       key:
+        type: string
+      title:
+        type: string
+    type: object
+  contribution.ImageRes:
+    properties:
+      key:
+        type: string
+      link:
         type: string
       title:
         type: string
@@ -685,25 +698,50 @@ paths:
         schema:
           $ref: '#/definitions/contribution.ContributionUpdateReq'
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
           schema:
             $ref: '#/definitions/contribution.ContributionRes'
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: [ ]
       summary: Update a contribution
       tags:
-      - Contributions
+        - Contributions
+  /contributions/{id}/images:
+    get:
+      consumes:
+        - application/json
+      description: Get contribution images
+      parameters:
+        - description: ID
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/contribution.ImageRes'
+            type: array
+      security:
+        - ApiKeyAuth: [ ]
+      summary: Get contribution images
+      tags:
+        - Contributions
   /faculties:
     get:
       consumes:
-      - application/json
+        - application/json
       description: List faculties
       parameters:
-      - in: query
-        name: limit
+        - in: query
+          name: limit
         type: integer
       - in: query
         name: page

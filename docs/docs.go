@@ -731,6 +731,46 @@ var doc = `{
                 }
             }
         },
+        "/contributions/{id}/images": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get contribution images",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Contributions"
+                ],
+                "summary": "Get contribution images",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/contribution.ImageRes"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/faculties": {
             "get": {
                 "security": [
@@ -1287,12 +1327,12 @@ var doc = `{
                 "versions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/article.Version"
+                        "$ref": "#/definitions/article.VersionRes"
                     }
                 }
             }
         },
-        "article.Version": {
+        "article.VersionRes": {
             "type": "object",
             "properties": {
                 "articleId": {
@@ -1310,7 +1350,13 @@ var doc = `{
                 "linkOriginal": {
                     "type": "string"
                 },
+                "linkOriginalCdn": {
+                    "type": "string"
+                },
                 "linkPdf": {
+                    "type": "string"
+                },
+                "linkPdfCdn": {
                     "type": "string"
                 }
             }
@@ -1540,6 +1586,20 @@ var doc = `{
             "type": "object",
             "properties": {
                 "key": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "contribution.ImageRes": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "link": {
                     "type": "string"
                 },
                 "title": {

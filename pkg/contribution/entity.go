@@ -30,7 +30,7 @@ func (e Entity) TableName() string {
 }
 
 type ImageEntity struct {
-	Key            string
+	Key            string `gorm:"primaryKey"`
 	ContributionId int
 	Title          string
 }

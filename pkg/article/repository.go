@@ -17,7 +17,7 @@ func InitializeRepository(db *gorm.DB) *repository {
 
 func (r repository) FindById(ctx context.Context, id int) (*Entity, error) {
 	result := new(Entity)
-	db := r.db.WithContext(ctx).First(result, id)
+	db := r.db.WithContext(ctx).Preload("Versions").First(result, id)
 	return result, db.Error
 }
 
@@ -43,4 +43,14 @@ func (r repository) GetLatestVersionOfArticle(ctx context.Context, articleId int
 		Where("article_id = ?", articleId).
 		Find(entity)
 	return entity, result.Error
+}
+
+func (r repository) Delete(ctx context.Context, id int) error {
+	builder := r.db.WithContext(ctx)
+	db := builder.Where("article_id = ?", id).Delete(&Version{})
+	if db.Error != nil {
+		return db.Error
+	}
+	db = builder.Delete(&Entity{}, id)
+	return db.Error
 }

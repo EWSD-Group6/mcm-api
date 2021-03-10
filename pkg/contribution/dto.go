@@ -74,10 +74,13 @@ func (c ImageCreateReq) Validate() error {
 }
 
 type ContributionUpdateReq struct {
-	Article ArticleReq       `json:"article"`
+	Article *ArticleReq      `json:"article"`
 	Images  []ImageCreateReq `json:"images"`
 }
 
 func (r *ContributionUpdateReq) Validate() error {
-	return validation.ValidateStruct(r)
+	return validation.ValidateStruct(r,
+		validation.Field(&r.Article, validation.Required.When(r.Images == nil)),
+		validation.Field(&r.Images, validation.Required.When(r.Article == nil)),
+	)
 }

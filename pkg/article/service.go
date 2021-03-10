@@ -5,12 +5,15 @@ import (
 	"encoding/hex"
 	"errors"
 	"github.com/spaolacci/murmur3"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"io/ioutil"
 	"mcm-api/config"
 	"mcm-api/pkg/apperror"
 	"mcm-api/pkg/common"
+	"mcm-api/pkg/log"
 	"mcm-api/pkg/media"
+	"time"
 )
 
 type Service struct {
@@ -39,7 +42,7 @@ func (s Service) FindById(ctx context.Context, id int) (*ArticleRes, error) {
 		}
 		return nil, err
 	}
-	return mapArticleToRes(entity), nil
+	return s.mapArticleToRes(entity), nil
 }
 
 func (s Service) Create(ctx context.Context, req *ArticleReq) (*ArticleRes, error) {
@@ -58,7 +61,7 @@ func (s Service) Create(ctx context.Context, req *ArticleReq) (*ArticleRes, erro
 	entity, err := s.repository.Create(ctx, &Entity{
 		Title:       req.Title,
 		Description: req.Description,
-		Versions: []Version{
+		Versions: []*Version{
 			{
 				Hash:         fileHash,
 				LinkOriginal: req.Link,
@@ -69,7 +72,7 @@ func (s Service) Create(ctx context.Context, req *ArticleReq) (*ArticleRes, erro
 	if err != nil {
 		return nil, err
 	}
-	return mapArticleToRes(entity), nil
+	return s.mapArticleToRes(entity), nil
 }
 
 func (s Service) Update(ctx context.Context, articleId int, req ArticleReq) (*ArticleRes, error) {
@@ -92,17 +95,17 @@ func (s Service) Update(ctx context.Context, articleId int, req ArticleReq) (*Ar
 			return nil, err
 		}
 	}
-	return mapArticleToRes(entity), nil
+	return s.mapArticleToRes(entity), nil
 }
 
 func (s Service) CreateVersion(ctx context.Context, articleId int, link string) (*Version, error) {
 	file, err := s.mediaService.GetFile(ctx, link)
-	defer func() {
-		_ = file.Close()
-	}()
 	if err != nil {
 		return nil, err
 	}
+	defer func() {
+		_ = file.Close()
+	}()
 	fileContent, err := ioutil.ReadAll(file)
 	if err != nil {
 		return nil, err
@@ -126,21 +129,49 @@ func (s Service) CreateVersion(ctx context.Context, articleId int, link string) 
 	return version, nil
 }
 
+func (s Service) Delete(ctx context.Context, id int) error {
+	return s.repository.Delete(ctx, id)
+}
+
 func hash(input []byte) string {
 	new128 := murmur3.New128()
 	_, _ = new128.Write(input)
 	return hex.EncodeToString(new128.Sum(nil))
 }
 
-func mapArticleToRes(a *Entity) *ArticleRes {
+func (s Service) mapArticleToRes(a *Entity) *ArticleRes {
 	return &ArticleRes{
 		Id:          a.Id,
 		Title:       a.Title,
 		Description: a.Description,
-		Versions:    a.Versions,
+		Versions:    s.mapVersionsToRes(a.Versions...),
 		TrackTime: common.TrackTime{
 			CreatedAt: a.CreatedAt,
 			UpdatedAt: a.UpdatedAt,
 		},
 	}
+}
+
+func (s Service) mapVersionsToRes(vs ...*Version) []*VersionRes {
+	var results []*VersionRes
+	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Second*3)
+	defer cancelFunc()
+	for _, v := range vs {
+		res := &VersionRes{
+			Id:           v.Id,
+			Hash:         v.Hash,
+			ArticleId:    v.ArticleId,
+			LinkOriginal: v.LinkOriginal,
+			LinkPdf:      v.LinkPdf,
+			CreatedAt:    v.CreatedAt,
+		}
+
+		url, err := s.mediaService.GetUrl(ctx, v.LinkOriginal)
+		if err != nil {
+			log.Logger.Error("error get url", zap.Error(err))
+		}
+		res.LinkOriginalCdn = url
+		results = append(results, res)
+	}
+	return results
 }

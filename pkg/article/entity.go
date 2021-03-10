@@ -8,7 +8,7 @@ type Entity struct {
 	Id          int
 	Title       string
 	Description string
-	Versions    []Version `gorm:"foreignKey:ArticleId"`
+	Versions    []*Version `gorm:"foreignKey:ArticleId"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
@@ -18,12 +18,12 @@ func (e *Entity) TableName() string {
 }
 
 type Version struct {
-	Id           int
-	Hash         string
-	ArticleId    int
-	LinkOriginal string
-	LinkPdf      string
-	CreatedAt    time.Time
+	Id           int       `json:"id"`
+	Hash         string    `json:"hash"`
+	ArticleId    int       `json:"articleId"`
+	LinkOriginal string    `json:"linkOriginal"`
+	LinkPdf      string    `json:"linkPdf"`
+	CreatedAt    time.Time `json:"createdAt"`
 }
 
 func (v Version) TableName() string {

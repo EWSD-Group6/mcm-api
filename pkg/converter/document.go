@@ -41,14 +41,13 @@ func (r GotenbergDocumentConverter) Convert(ctx context.Context, key string, use
 	w := multipart.NewWriter(writer)
 	go func() {
 		// TODO improve error handling in this goroutine
-		fw, err := w.CreateFormFile("files", "file.docx")
-		if err != nil {
+		fw, er := w.CreateFormFile("files", "file.docx")
+		if er != nil {
 			log.Logger.Error("create form file failed", zap.Error(err))
 			return
 		}
-		written, err := io.Copy(fw, file)
-		fmt.Println(written)
-		if err != nil {
+		_, er = io.Copy(fw, file)
+		if er != nil {
 			log.Logger.Error("copy bytes to form writer failed", zap.Error(err))
 		}
 		defer writer.Close()

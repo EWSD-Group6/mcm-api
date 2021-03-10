@@ -2,7 +2,6 @@ package common
 
 import (
 	"context"
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"mcm-api/pkg/apperror"
 )
@@ -28,7 +27,6 @@ type LoggedInUser struct {
 const contextKey = "user"
 
 func GetLoggedInUser(ctx context.Context) (*LoggedInUser, error) {
-	fmt.Println(ctx.Value(contextKey))
 	if v, oke := ctx.Value(contextKey).(*LoggedInUser); oke {
 		if oke {
 			return v, nil
