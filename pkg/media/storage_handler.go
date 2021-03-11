@@ -5,7 +5,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"mcm-api/config"
 	"mcm-api/pkg/apperror"
-	"mcm-api/pkg/common"
+	"mcm-api/pkg/enforcer"
 	"mcm-api/pkg/middleware"
 	"net/http"
 )
@@ -24,7 +24,7 @@ func NewHandler(config *config.Config, service Service) *Handler {
 
 func (h *Handler) Register(group *echo.Group) {
 	group.Use(middleware.RequireAuthentication(h.config.JwtSecret))
-	group.POST("/upload", h.upload)
+	group.POST("/upload", h.upload, middleware.RequirePermission(enforcer.CreateMedia))
 }
 
 // @Tags Storage
@@ -40,7 +40,7 @@ func (h *Handler) Register(group *echo.Group) {
 func (h *Handler) upload(ctx echo.Context) error {
 	query := new(UploadQuery)
 	_ = ctx.Bind(query)
-	user, err := common.GetLoggedInUser(ctx.Request().Context())
+	user, err := enforcer.GetLoggedInUser(ctx.Request().Context())
 	if err != nil {
 		return apperror.HandleError(err, ctx)
 	}

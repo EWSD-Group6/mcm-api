@@ -11,6 +11,7 @@ import (
 	"mcm-api/config"
 	"mcm-api/pkg/apperror"
 	"mcm-api/pkg/common"
+	"mcm-api/pkg/enforcer"
 	"mcm-api/pkg/log"
 	"mcm-api/pkg/media"
 	"mcm-api/pkg/queue"
@@ -76,7 +77,7 @@ func (s Service) Create(ctx context.Context, req *ArticleReq) (*ArticleRes, erro
 	if err != nil {
 		return nil, err
 	}
-	user, err := common.GetLoggedInUser(ctx)
+	user, err := enforcer.GetLoggedInUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +85,7 @@ func (s Service) Create(ctx context.Context, req *ArticleReq) (*ArticleRes, erro
 	return s.mapArticleToRes(entity), nil
 }
 
-func (s Service) addToQueue(user *common.LoggedInUser, entity *Version) {
+func (s Service) addToQueue(user *enforcer.LoggedInUser, entity *Version) {
 	go func() {
 		ctxTimeout, cancelFunc := context.WithTimeout(context.Background(), time.Second*2)
 		defer cancelFunc()
@@ -153,7 +154,7 @@ func (s Service) CreateVersion(ctx context.Context, articleId int, link string) 
 	if err != nil {
 		return nil, err
 	}
-	user, err := common.GetLoggedInUser(ctx)
+	user, err := enforcer.GetLoggedInUser(ctx)
 	if err != nil {
 		return nil, err
 	}

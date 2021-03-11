@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 	"gorm.io/gorm"
-	"mcm-api/pkg/common"
+	"mcm-api/pkg/enforcer"
 )
 
 type repository struct {
@@ -47,7 +47,7 @@ func (r *repository) FindAndCount(ctx context.Context, query *UserIndexQuery) ([
 	return entities, count, result.Error
 }
 
-func (r *repository) FindAllUserOfFaculty(ctx context.Context, role common.Role, id int) ([]*Entity, error) {
+func (r *repository) FindAllUserOfFaculty(ctx context.Context, role enforcer.Role, id int) ([]*Entity, error) {
 	var entities []*Entity
 	result := r.db.WithContext(ctx).Where("role = ? and faculty_id = ?", role, id).Find(&entities)
 	return entities, result.Error

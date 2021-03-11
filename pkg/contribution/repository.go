@@ -51,7 +51,8 @@ func (r repository) FindAndCount(ctx context.Context, query *IndexQuery) ([]*Ent
 		builder.Where("status = ?", query.Status)
 	}
 	if query.FacultyId != nil {
-		builder.Where("faculty_id = ?", query.FacultyId)
+		builder.Joins("join users on users.id = contributions.user_id").
+			Where("users.faculty_id = ?", query.FacultyId)
 	}
 	if query.StudentId != nil {
 		builder.Where("user_id = ?", query.StudentId)
@@ -62,7 +63,7 @@ func (r repository) FindAndCount(ctx context.Context, query *IndexQuery) ([]*Ent
 	var count int64
 	result := builder.Count(&count)
 	if result.Error != nil {
-		return nil, 0, nil
+		return nil, 0, result.Error
 	}
 	builder.Offset(query.GetOffSet()).Limit(query.GetLimit())
 	result = builder.Preload("User").Find(&entities)

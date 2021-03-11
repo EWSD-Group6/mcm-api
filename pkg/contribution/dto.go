@@ -3,6 +3,7 @@ package contribution
 import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"mcm-api/pkg/common"
+	"mcm-api/pkg/enforcer"
 )
 
 type IndexQuery struct {
@@ -23,11 +24,11 @@ type ContributionRes struct {
 }
 
 type UserRes struct {
-	Id        int         `json:"id"`
-	Name      string      `json:"name"`
-	Email     string      `json:"email"`
-	FacultyId *int        `json:"facultyId"`
-	Role      common.Role `json:"role"`
+	Id        int           `json:"id"`
+	Name      string        `json:"name"`
+	Email     string        `json:"email"`
+	FacultyId *int          `json:"facultyId"`
+	Role      enforcer.Role `json:"role"`
 }
 
 type ImageRes struct {

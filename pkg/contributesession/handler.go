@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"mcm-api/config"
 	"mcm-api/pkg/apperror"
+	"mcm-api/pkg/enforcer"
 	"mcm-api/pkg/middleware"
 	"net/http"
 	"strconv"
@@ -23,12 +24,12 @@ func NewHandler(config *config.Config, service *Service) *Handler {
 
 func (h *Handler) Register(group *echo.Group) {
 	group.Use(middleware.RequireAuthentication(h.config.JwtSecret))
-	group.GET("", h.index)
-	group.GET("/:id", h.getById)
-	group.POST("", h.create)
-	group.POST("/:id/export", h.create)
-	group.PUT("/:id", h.update)
-	group.DELETE("/:id", h.delete)
+	group.GET("", h.index, middleware.RequirePermission(enforcer.ReadContributeSession))
+	group.GET("/:id", h.getById, middleware.RequirePermission(enforcer.ReadContributeSession))
+	group.POST("", h.create, middleware.RequirePermission(enforcer.CreateContributeSession))
+	group.POST("/:id/export", h.create, middleware.RequirePermission(enforcer.ExportContributeSession))
+	group.PUT("/:id", h.update, middleware.RequirePermission(enforcer.UpdateContributeSession))
+	group.DELETE("/:id", h.delete, middleware.RequirePermission(enforcer.DeleteContributeSession))
 }
 
 // @Tags Contribute Sessions

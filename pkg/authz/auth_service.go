@@ -10,24 +10,6 @@ import (
 	"time"
 )
 
-type Action string
-
-const (
-	Read   Action = "read"
-	Create Action = "create"
-	Update Action = "update"
-	Delete Action = "delete"
-	All    Action = "*"
-)
-
-type ObjectType string
-
-const (
-	Faculty           ObjectType = "faculty"
-	ContributeSession ObjectType = "contribute_session"
-	Contribution      ObjectType = "contribution"
-)
-
 // access token ttl, unit: hours
 const accessTokenTtl = 168
 
@@ -62,7 +44,7 @@ func (s Service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse, 
 	claims["name"] = userResponse.Name
 	claims["email"] = userResponse.Email
 	claims["role"] = userResponse.Role
-	claims["facultyId"] = userResponse.FacultyId
+	claims["facultyId"] = strconv.Itoa(*userResponse.FacultyId)
 	claims["exp"] = time.Now().Add(time.Hour * accessTokenTtl).Unix()
 
 	accessToken, err := token.SignedString([]byte(s.config.JwtSecret))

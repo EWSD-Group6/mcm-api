@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"mcm-api/config"
 	"mcm-api/pkg/apperror"
+	"mcm-api/pkg/enforcer"
 	"mcm-api/pkg/middleware"
 	"net/http"
 )
@@ -22,11 +23,11 @@ func NewHandler(config *config.Config, service *Service) *Handler {
 
 func (h *Handler) Register(group *echo.Group) {
 	group.Use(middleware.RequireAuthentication(h.config.JwtSecret))
-	group.GET("", h.index)
-	group.GET("/:id", h.getById)
-	group.POST("", h.create)
-	group.PUT("/:id", h.update)
-	group.DELETE("/:id", h.delete)
+	group.GET("", h.index, middleware.RequirePermission(enforcer.ReadComment))
+	group.GET("/:id", h.getById, middleware.RequirePermission(enforcer.ReadComment))
+	group.POST("", h.create, middleware.RequirePermission(enforcer.CreateComment))
+	group.PUT("/:id", h.update, middleware.RequirePermission(enforcer.UpdateComment))
+	group.DELETE("/:id", h.delete, middleware.RequirePermission(enforcer.DeleteComment))
 }
 
 // @Tags Comments

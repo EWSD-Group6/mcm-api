@@ -4,7 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"mcm-api/config"
 	"mcm-api/pkg/apperror"
-	"mcm-api/pkg/common"
+	"mcm-api/pkg/enforcer"
 	"mcm-api/pkg/middleware"
 	"net/http"
 	"strconv"
@@ -24,11 +24,11 @@ func NewUserHandler(config *config.Config, service *Service) *Handler {
 
 func (h *Handler) Register(group *echo.Group) {
 	group.Use(middleware.RequireAuthentication(h.config.JwtSecret))
-	group.GET("", h.index)
-	group.GET("/:id", h.getById)
-	group.POST("", h.createUser)
-	group.PUT(":id", h.updateUser)
-	group.DELETE(":id", h.deleteUser)
+	group.GET("", h.index, middleware.RequirePermission(enforcer.ReadUser))
+	group.GET("/:id", h.getById, middleware.RequirePermission(enforcer.ReadUser))
+	group.POST("", h.createUser, middleware.RequirePermission(enforcer.CreateUser))
+	group.PUT("/:id", h.updateUser, middleware.RequirePermission(enforcer.UpdateUser))
+	group.DELETE("/:id", h.deleteUser, middleware.RequirePermission(enforcer.DeleteUser))
 }
 
 // @Tags Users
@@ -46,7 +46,7 @@ func (h *Handler) index(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	loggedInUser, err := common.GetLoggedInUser(ctx.Request().Context())
+	loggedInUser, err := enforcer.GetLoggedInUser(ctx.Request().Context())
 	if err != nil {
 		return err
 	}
@@ -90,16 +90,12 @@ func (h *Handler) getById(ctx echo.Context) error {
 // @Security ApiKeyAuth
 // @Router /users [post]
 func (h Handler) createUser(ctx echo.Context) error {
-	loggedInUser, err := common.GetLoggedInUser(ctx.Request().Context())
-	if err != nil {
-		return apperror.HandleError(err, ctx)
-	}
 	req := &UserCreateReq{}
-	err = ctx.Bind(req)
+	err := ctx.Bind(req)
 	if err != nil {
 		return err
 	}
-	userResponse, err := h.service.CreateUser(ctx.Request().Context(), loggedInUser, req)
+	userResponse, err := h.service.CreateUser(ctx.Request().Context(), req)
 	if err != nil {
 		return apperror.HandleError(err, ctx)
 	}

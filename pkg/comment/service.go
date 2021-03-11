@@ -7,12 +7,15 @@ import (
 	"mcm-api/config"
 	"mcm-api/pkg/apperror"
 	"mcm-api/pkg/common"
+	"mcm-api/pkg/contribution"
+	"mcm-api/pkg/enforcer"
 	"mcm-api/pkg/user"
 )
 
 type Service struct {
-	cfg        *config.Config
-	repository *repository
+	cfg                 *config.Config
+	repository          *repository
+	contributionService *contribution.Service
 }
 
 func InitializeService(
@@ -26,6 +29,15 @@ func InitializeService(
 }
 
 func (s Service) Find(ctx context.Context, query *IndexQuery) (*common.CursorResponse, error) {
+	u, _ := enforcer.GetLoggedInUser(ctx)
+	contrib, err := s.contributionService.FindById(ctx, query.ContributionId)
+	if err != nil {
+		return nil, err
+	}
+	err = canCommentOnContribution(u, contrib)
+	if err != nil {
+		return nil, err
+	}
 	entities, nextCursor, err := s.repository.FindCursor(ctx, query)
 	if err != nil {
 		return nil, err
@@ -51,11 +63,19 @@ func (s Service) FindById(ctx context.Context, id string) (*CommentRes, error) {
 }
 
 func (s Service) Create(ctx context.Context, body *CommentCreateReq) (*CommentRes, error) {
-	u, err := common.GetLoggedInUser(ctx)
+	u, err := enforcer.GetLoggedInUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 	err = body.Validate()
+	if err != nil {
+		return nil, err
+	}
+	ctb, err := s.contributionService.FindById(ctx, body.ContributionId)
+	if err != nil {
+		return nil, err
+	}
+	err = canCommentOnContribution(u, ctb)
 	if err != nil {
 		return nil, err
 	}
@@ -70,13 +90,32 @@ func (s Service) Create(ctx context.Context, body *CommentCreateReq) (*CommentRe
 	return mapEntityToRes(entity), nil
 }
 
+func canCommentOnContribution(user *enforcer.LoggedInUser, contrib *contribution.ContributionRes) error {
+	if user.Role == enforcer.Student &&
+		contrib.User.Id != user.Id {
+		return apperror.New(apperror.ErrForbidden,
+			"you are not owner of this contribution", nil)
+	}
+	if user.Role == enforcer.MarketingCoordinator &&
+		contrib.User.FacultyId != user.FacultyId {
+		return apperror.New(
+			apperror.ErrForbidden,
+			"you are not in same faculty with contribution", nil)
+	}
+	return nil
+}
+
 func (s Service) Update(ctx context.Context, id string, body *CommentUpdateReq) (*CommentRes, error) {
+	u, _ := enforcer.GetLoggedInUser(ctx)
 	entity, err := s.repository.FindById(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.New(apperror.ErrNotFound, "comment not found", err)
 		}
 		return nil, err
+	}
+	if entity.UserId != u.Id {
+		return nil, apperror.New(apperror.ErrForbidden, "not your comment", nil)
 	}
 	entity.Content = body.Content
 	entity, err = s.repository.Update(ctx, entity)
@@ -87,6 +126,17 @@ func (s Service) Update(ctx context.Context, id string, body *CommentUpdateReq) 
 }
 
 func (s Service) Delete(ctx context.Context, id string) error {
+	u, _ := enforcer.GetLoggedInUser(ctx)
+	entity, err := s.repository.FindById(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperror.New(apperror.ErrNotFound, "comment not found", err)
+		}
+		return err
+	}
+	if entity.UserId != u.Id {
+		return apperror.New(apperror.ErrForbidden, "not your comment", nil)
+	}
 	return s.repository.Delete(ctx, id)
 }
 

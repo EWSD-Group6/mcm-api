@@ -4,19 +4,20 @@ import (
 	"github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"mcm-api/pkg/common"
+	"mcm-api/pkg/enforcer"
 )
 
 type UserIndexQuery struct {
-	Role common.Role `query:"role" enums:"admin,marketing_manager,marketing_coordinator,student,guest"`
+	Role enforcer.Role `query:"role" enums:"admin,marketing_manager,marketing_coordinator,student,guest"`
 	common.PaginateQuery
 }
 
 type UserCreateReq struct {
-	Name      string      `json:"name"`
-	Email     string      `json:"email"`
-	Password  string      `json:"password"`
-	Role      common.Role `json:"role"`
-	FacultyId int         `json:"facultyId"`
+	Name      string        `json:"name"`
+	Email     string        `json:"email"`
+	Password  string        `json:"password"`
+	Role      enforcer.Role `json:"role"`
+	FacultyId *int          `json:"facultyId"`
 }
 
 func (c *UserCreateReq) Validate() error {
@@ -25,22 +26,22 @@ func (c *UserCreateReq) Validate() error {
 		validation.Field(&c.Email, validation.Required, is.Email),
 		validation.Field(&c.Password, validation.Required, validation.Length(5, 50)),
 		validation.Field(&c.Role, validation.Required, validation.In(
-			common.Guest, common.Student, common.MarketingCoordinator, common.MarketingManager, common.Administrator)),
-		validation.Field(&c.FacultyId, validation.Required.When(isRoleRequiredFaculty(c.Role)), is.Int),
+			enforcer.Guest, enforcer.Student, enforcer.MarketingCoordinator, enforcer.MarketingManager, enforcer.Administrator)),
+		validation.Field(&c.FacultyId, validation.Required.When(isRoleRequiredFaculty(c.Role))),
 	)
 }
 
-func isRoleRequiredFaculty(role common.Role) bool {
+func isRoleRequiredFaculty(role enforcer.Role) bool {
 	switch role {
-	case common.Administrator:
+	case enforcer.Administrator:
 		return false
-	case common.MarketingManager:
+	case enforcer.MarketingManager:
 		return false
-	case common.MarketingCoordinator:
+	case enforcer.MarketingCoordinator:
 		return true
-	case common.Student:
+	case enforcer.Student:
 		return true
-	case common.Guest:
+	case enforcer.Guest:
 		return true
 	default:
 		return true
