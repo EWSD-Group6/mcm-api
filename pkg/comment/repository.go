@@ -15,19 +15,40 @@ func InitializeRepository(db *gorm.DB) *repository {
 	}
 }
 
-func (r repository) FindById(ctx context.Context, id int) (*Entity, error) {
+func (r repository) FindById(ctx context.Context, id string) (*Entity, error) {
 	result := new(Entity)
-	db := r.db.WithContext(ctx).First(result, id)
+	db := r.db.WithContext(ctx).Preload("User").Where("id = ?", id).First(result)
 	return result, db.Error
 }
 
-func (r repository) Find(ctx context.Context, query *IndexQuery) ([]*Entity, error) {
-	var results []*Entity
-	r.db.WithContext(ctx)
-	r.db.Limit(query.GetLimit())
-	r.db.Offset(query.GetOffSet())
-	db := r.db.Find(results)
-	return results, db.Error
+func (r repository) FindCursor(ctx context.Context, query *IndexQuery) ([]*Entity, *CursorPayload, error) {
+	builder := r.db.Debug().WithContext(ctx).
+		Preload("User").
+		Limit(query.GetLimit()).
+		Order("created_at ASC").
+		Where("contribution_id = ?", query.ContributionId)
+	if query.Next != "" {
+		var nextPayload CursorPayload
+		err := query.GetNext(&nextPayload)
+		if err != nil {
+			return nil, nil, err
+		}
+		builder.Where("created_at >= ? and id != ?", nextPayload.CreatedAt, nextPayload.Id)
+	}
+	var entities []*Entity
+	result := builder.Find(&entities)
+	if result.Error != nil {
+		return nil, nil, result.Error
+	}
+	var nextCursor *CursorPayload
+	if len(entities) > 0 {
+		lastEntity := entities[len(entities)-1]
+		nextCursor = &CursorPayload{
+			Id:        lastEntity.Id,
+			CreatedAt: lastEntity.CreatedAt,
+		}
+	}
+	return entities, nextCursor, nil
 }
 
 func (r repository) Create(ctx context.Context, entity *Entity) (*Entity, error) {
@@ -40,6 +61,6 @@ func (r repository) Update(ctx context.Context, entity *Entity) (*Entity, error)
 	return entity, db.Error
 }
 
-func (r repository) Delete(ctx context.Context, id int) error {
-	return r.db.WithContext(ctx).Delete(id).Error
+func (r repository) Delete(ctx context.Context, id string) error {
+	return r.db.WithContext(ctx).Where("id = ?", id).Delete(&Entity{}).Error
 }

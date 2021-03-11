@@ -7,9 +7,9 @@ import (
 	"mcm-api/internal/core"
 	"mcm-api/pkg/article"
 	"mcm-api/pkg/authz"
+	"mcm-api/pkg/comment"
 	"mcm-api/pkg/contributesession"
 	"mcm-api/pkg/contribution"
-	"mcm-api/pkg/document"
 	"mcm-api/pkg/faculty"
 	"mcm-api/pkg/media"
 	"mcm-api/pkg/startup"
@@ -20,7 +20,6 @@ func InitializeServer() *Server {
 	panic(wire.Build(
 		core.InfraSet,
 		user.Set,
-		document.Set,
 		authz.Set,
 		startup.Set,
 		faculty.Set,
@@ -28,6 +27,7 @@ func InitializeServer() *Server {
 		contributesession.Set,
 		contribution.Set,
 		article.Set,
+		comment.Set,
 		core.HandlerSet,
 		newServer,
 	))

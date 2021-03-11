@@ -125,8 +125,8 @@ var doc = `{
                         "in": "query"
                     },
                     {
-                        "type": "integer",
-                        "name": "page",
+                        "type": "string",
+                        "name": "next",
                         "in": "query"
                     }
                 ],
@@ -209,7 +209,7 @@ var doc = `{
                 "summary": "Show a comment",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "ID",
                         "name": "id",
                         "in": "path",
@@ -244,7 +244,7 @@ var doc = `{
                 "summary": "Update a comment",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "ID",
                         "name": "id",
                         "in": "path",
@@ -288,7 +288,7 @@ var doc = `{
                 "summary": "Delete a comment",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "ID",
                         "name": "id",
                         "in": "path",
@@ -1420,6 +1420,9 @@ var doc = `{
                 },
                 "createdAt": {
                     "type": "string"
+                },
+                "edited": {
+                    "type": "boolean"
                 },
                 "id": {
                     "type": "string"
