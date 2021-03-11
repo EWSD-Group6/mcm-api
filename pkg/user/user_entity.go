@@ -1,7 +1,7 @@
 package user
 
 import (
-	"mcm-api/pkg/common"
+	"mcm-api/pkg/enforcer"
 	"time"
 )
 
@@ -11,7 +11,7 @@ type Entity struct {
 	Email     string
 	Password  string
 	FacultyId *int
-	Role      common.Role
+	Role      enforcer.Role
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

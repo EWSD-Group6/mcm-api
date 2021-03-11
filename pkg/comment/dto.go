@@ -8,7 +8,7 @@ import (
 )
 
 type IndexQuery struct {
-	ContributionId int64 `query:"contributionId" validate:"required"`
+	ContributionId int `query:"contributionId" validate:"required"`
 	common.CursorQuery
 }
 

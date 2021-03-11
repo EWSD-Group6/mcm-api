@@ -7,8 +7,8 @@ import (
 	"go.uber.org/zap"
 	"mcm-api/config"
 	"mcm-api/pkg/article"
-	"mcm-api/pkg/common"
 	"mcm-api/pkg/converter"
+	"mcm-api/pkg/enforcer"
 	"mcm-api/pkg/log"
 	"mcm-api/pkg/notification"
 	"mcm-api/pkg/queue"
@@ -100,7 +100,7 @@ func (w worker) handleMessage(ctx context.Context, message *queue.Message) error
 
 func (w worker) contributionCreatedHandler(ctx context.Context, message *queue.Message) error {
 	if v, ok := message.Data.(*queue.ContributionCreatedPayload); ok {
-		entities, err := w.userService.GetAllUserOfFaculty(ctx, common.MarketingCoordinator, v.FacultyId)
+		entities, err := w.userService.GetAllUserOfFaculty(ctx, enforcer.MarketingCoordinator, v.FacultyId)
 		if err != nil {
 			return err
 		}
@@ -110,14 +110,17 @@ func (w worker) contributionCreatedHandler(ctx context.Context, message *queue.M
 		}
 		for _, marketingCoordinator := range entities {
 			err = w.notificationService.SendNewContributionEmail(
-				&notification.Destination{ToAddresses: []string{""}},
+				&notification.Destination{ToAddresses: []string{marketingCoordinator.Email}},
 				&notification.TemplateNewContributionPayLoad{
 					Name:        marketingCoordinator.Name,
 					StudentName: v.UserName,
 					Link:        "https://google.com",
 				})
 			if err != nil {
-				log.Logger.Error("send email failed", zap.Error(err))
+				log.Logger.Error("send email failed",
+					zap.Error(err),
+					zap.Any("target", marketingCoordinator),
+				)
 			}
 		}
 		return nil

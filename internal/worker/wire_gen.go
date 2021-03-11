@@ -9,6 +9,7 @@ import (
 	"mcm-api/internal/core"
 	"mcm-api/pkg/article"
 	"mcm-api/pkg/converter"
+	"mcm-api/pkg/faculty"
 	"mcm-api/pkg/media"
 	"mcm-api/pkg/notification"
 	"mcm-api/pkg/queue"
@@ -29,7 +30,9 @@ func InitializeWorker() *worker {
 	articleService := article.InitializeService(config, repository, service, queueQueue)
 	notificationService := notification.InitializeService(config)
 	userRepository := user.InitializeRepository(db)
-	userService := user.InitializeService(config, userRepository)
+	facultyRepository := faculty.InitializeRepository(db)
+	facultyService := faculty.InitializeService(config, facultyRepository)
+	userService := user.InitializeService(config, userRepository, facultyService)
 	workerWorker := newWorker(config, queueQueue, documentConverter, articleService, notificationService, userService)
 	return workerWorker
 }

@@ -1,19 +1,9 @@
-package common
+package enforcer
 
 import (
 	"context"
 	"github.com/labstack/echo/v4"
 	"mcm-api/pkg/apperror"
-)
-
-type Role string
-
-const (
-	Administrator        Role = "admin"
-	MarketingManager     Role = "marketing_manager"
-	MarketingCoordinator Role = "marketing_coordinator"
-	Student              Role = "student"
-	Guest                Role = "guest"
 )
 
 type LoggedInUser struct {

@@ -7,7 +7,7 @@ import (
 	"io"
 	"mcm-api/config"
 	"mcm-api/pkg/apperror"
-	"mcm-api/pkg/common"
+	"mcm-api/pkg/enforcer"
 	"mcm-api/pkg/log"
 	"mcm-api/pkg/media"
 	"mime/multipart"
@@ -15,7 +15,7 @@ import (
 )
 
 type DocumentConverter interface {
-	Convert(ctx context.Context, key string, user common.LoggedInUser) (*ConvertResult, error)
+	Convert(ctx context.Context, key string, user enforcer.LoggedInUser) (*ConvertResult, error)
 }
 
 type GotenbergDocumentConverter struct {
@@ -30,7 +30,7 @@ func NewGotenbergDocumentConverter(config *config.Config, service media.Service)
 	}
 }
 
-func (r GotenbergDocumentConverter) Convert(ctx context.Context, key string, user common.LoggedInUser) (*ConvertResult, error) {
+func (r GotenbergDocumentConverter) Convert(ctx context.Context, key string, user enforcer.LoggedInUser) (*ConvertResult, error) {
 	url := fmt.Sprintf("%v/convert/office", r.cfg.ConverterService)
 	file, err := r.service.GetFile(ctx, key)
 	if err != nil {

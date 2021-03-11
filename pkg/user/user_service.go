@@ -9,21 +9,26 @@ import (
 	"mcm-api/config"
 	"mcm-api/pkg/apperror"
 	"mcm-api/pkg/common"
+	"mcm-api/pkg/enforcer"
+	"mcm-api/pkg/faculty"
 	"mcm-api/pkg/log"
 )
 
 type Service struct {
-	cfg        *config.Config
-	repository *repository
+	cfg            *config.Config
+	repository     *repository
+	facultyService *faculty.Service
 }
 
 func InitializeService(
 	cfg *config.Config,
 	repository *repository,
+	facultyService *faculty.Service,
 ) *Service {
 	return &Service{
-		cfg:        cfg,
-		repository: repository,
+		cfg:            cfg,
+		repository:     repository,
+		facultyService: facultyService,
 	}
 }
 
@@ -53,25 +58,42 @@ func (s *Service) FindByEmailAndPassword(ctx context.Context, email string, pass
 	return mapEntityToResponse(entity), nil
 }
 
-func (s *Service) CreateUser(ctx context.Context, loggedInUser *common.LoggedInUser, req *UserCreateReq) (*UserResponse, error) {
+func (s *Service) CreateUser(ctx context.Context, req *UserCreateReq) (*UserResponse, error) {
+	// common validate
 	err := req.Validate()
 	if err != nil {
 		return nil, err
 	}
+	// validate duplicate
 	entity, err := s.repository.FindByEmail(ctx, req.Email)
 	if err == nil {
 		return nil, apperror.New(apperror.ErrConflict, "duplicate email", err)
 	}
+	entity = &Entity{
+		Name:  req.Name,
+		Email: req.Email,
+		Role:  req.Role,
+	}
+
+	// validate and set faculty
+	if req.Role == enforcer.MarketingCoordinator ||
+		req.Role == enforcer.Student ||
+		req.Role == enforcer.Guest {
+		_, err = s.facultyService.FindById(ctx, *req.FacultyId)
+		if err != nil {
+			return nil, apperror.New(apperror.ErrInvalid, "invalid faculty", err)
+		}
+		entity.FacultyId = req.FacultyId
+	}
+
+	// hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), 10)
 	if err != nil {
 		return nil, err
 	}
-	entity = &Entity{
-		Name:     req.Name,
-		Email:    req.Email,
-		Password: string(hashedPassword),
-		Role:     req.Role,
-	}
+	entity.Password = string(hashedPassword)
+
+	// save
 	err = s.repository.Create(ctx, entity)
 	if err != nil {
 		return nil, err
@@ -97,11 +119,11 @@ func (s *Service) CreateDefaultAdmin(ctx context.Context) error {
 		Name:     "Administrators",
 		Email:    s.cfg.AdminEmail,
 		Password: string(hashedPassword),
-		Role:     common.Administrator,
+		Role:     enforcer.Administrator,
 	})
 }
 
-func (s *Service) Find(ctx context.Context, user *common.LoggedInUser, query *UserIndexQuery) (*common.PaginateResponse, error) {
+func (s *Service) Find(ctx context.Context, user *enforcer.LoggedInUser, query *UserIndexQuery) (*common.PaginateResponse, error) {
 	entities, count, err := s.repository.FindAndCount(ctx, query)
 	if err != nil {
 		return nil, err
@@ -110,7 +132,7 @@ func (s *Service) Find(ctx context.Context, user *common.LoggedInUser, query *Us
 	return common.NewPaginateResponse(dtos, count, query.Page, query.GetLimit()), nil
 }
 
-func (s *Service) GetAllUserOfFaculty(ctx context.Context, role common.Role, facultyId int) ([]*Entity, error) {
+func (s *Service) GetAllUserOfFaculty(ctx context.Context, role enforcer.Role, facultyId int) ([]*Entity, error) {
 	return s.repository.FindAllUserOfFaculty(ctx, role, facultyId)
 }
 

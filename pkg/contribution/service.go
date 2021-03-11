@@ -10,6 +10,7 @@ import (
 	"mcm-api/pkg/article"
 	"mcm-api/pkg/common"
 	"mcm-api/pkg/contributesession"
+	"mcm-api/pkg/enforcer"
 	"mcm-api/pkg/log"
 	"mcm-api/pkg/media"
 	"mcm-api/pkg/queue"
@@ -44,26 +45,26 @@ func InitializeService(
 }
 
 func (s Service) Find(ctx context.Context, query *IndexQuery) (*common.PaginateResponse, error) {
-	loggedInUser, err := common.GetLoggedInUser(ctx)
+	loggedInUser, err := enforcer.GetLoggedInUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 	var result []*Entity
 	var count int64
 	switch loggedInUser.Role {
-	case common.Administrator:
+	case enforcer.MarketingManager:
 		result, count, err = s.repository.FindAndCount(ctx, &IndexQuery{
 			PaginateQuery:         query.PaginateQuery,
 			FacultyId:             query.FacultyId,
 			StudentId:             query.StudentId,
 			ContributionSessionId: query.ContributionSessionId,
-			Status:                "",
+			Status:                Accepted,
 		})
 		if err != nil {
 			return nil, err
 		}
 		break
-	case common.MarketingCoordinator:
+	case enforcer.MarketingCoordinator:
 		result, count, err = s.repository.FindAndCount(ctx, &IndexQuery{
 			PaginateQuery:         query.PaginateQuery,
 			FacultyId:             loggedInUser.FacultyId,
@@ -75,7 +76,7 @@ func (s Service) Find(ctx context.Context, query *IndexQuery) (*common.PaginateR
 			return nil, err
 		}
 		break
-	case common.Student:
+	case enforcer.Student:
 		result, count, err = s.repository.FindAndCount(ctx, &IndexQuery{
 			PaginateQuery:         query.PaginateQuery,
 			FacultyId:             loggedInUser.FacultyId,
@@ -118,13 +119,17 @@ func (s Service) findById(ctx context.Context, id int) (*Entity, error) {
 }
 
 func (s Service) Create(ctx context.Context, body *ContributionCreateReq) (*ContributionRes, error) {
-	loggedInUser, err := common.GetLoggedInUser(ctx)
+	loggedInUser, err := enforcer.GetLoggedInUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 	session, err := s.contributeSessionService.GetCurrentSession(ctx)
 	if err != nil {
 		return nil, err
+	}
+	now := time.Now()
+	if now.After(session.ClosureTime) {
+		return nil, apperror.New(apperror.ErrForbidden, "cant create new contribution after closure time", nil)
 	}
 	var a *article.ArticleRes
 	if body.Article != nil {
@@ -154,7 +159,7 @@ func (s Service) Create(ctx context.Context, body *ContributionCreateReq) (*Cont
 	return mapContributionToRes(entity), nil
 }
 
-func (s Service) addToQueue(user common.LoggedInUser, contribution *Entity) {
+func (s Service) addToQueue(user enforcer.LoggedInUser, contribution *Entity) {
 	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Second*2)
 	defer cancelFunc()
 	err := s.queue.Add(ctx, &queue.Message{
@@ -176,6 +181,13 @@ func (s Service) Update(ctx context.Context, id int, body *ContributionUpdateReq
 	entity, err := s.findById(ctx, id)
 	if err != nil {
 		return nil, err
+	}
+	session, err := s.contributeSessionService.FindById(ctx, entity.ContributeSessionId)
+	if err != nil {
+		return nil, err
+	}
+	if time.Now().After(session.FinalClosureTime) {
+		return nil, apperror.New(apperror.ErrForbidden, "contribution session ended", nil)
 	}
 	if body.Article != nil {
 		_, err = s.articleService.Update(ctx, *entity.ArticleId, article.ArticleReq{
@@ -204,6 +216,13 @@ func (s Service) Delete(ctx context.Context, id int) error {
 			return nil
 		}
 		return err
+	}
+	session, err := s.contributeSessionService.FindById(ctx, entity.ContributeSessionId)
+	if err != nil {
+		return err
+	}
+	if time.Now().After(session.ClosureTime) {
+		return apperror.New(apperror.ErrForbidden, "contribution session ended", nil)
 	}
 	err = s.repository.Delete(ctx, id)
 	if err != nil {

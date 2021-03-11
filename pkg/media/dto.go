@@ -2,7 +2,7 @@ package media
 
 import (
 	"io"
-	"mcm-api/pkg/common"
+	"mcm-api/pkg/enforcer"
 )
 
 type UploadType string
@@ -20,13 +20,13 @@ type FileUploadOriginalReq struct {
 	File io.ReadSeeker
 	Size int64
 	Name string
-	User *common.LoggedInUser
+	User *enforcer.LoggedInUser
 }
 
 type FileUploadPreviewReq struct {
 	File io.Reader
 	Name string
-	User common.LoggedInUser
+	User enforcer.LoggedInUser
 }
 
 type UploadQuery struct {

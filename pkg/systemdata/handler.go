@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"mcm-api/config"
 	"mcm-api/pkg/apperror"
+	"mcm-api/pkg/enforcer"
 	"mcm-api/pkg/middleware"
 	"net/http"
 )
@@ -22,8 +23,8 @@ func NewHandler(config *config.Config, service *Service) *Handler {
 
 func (h *Handler) Register(group *echo.Group) {
 	group.Use(middleware.RequireAuthentication(h.config.JwtSecret))
-	group.GET("", h.index)
-	group.PUT(":id", h.update)
+	group.GET("", h.index, middleware.RequirePermission(enforcer.ReadSystemData))
+	group.PUT(":id", h.update, middleware.RequirePermission(enforcer.UpdateSystemData))
 }
 
 // @Tags System Data

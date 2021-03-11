@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
 	"mcm-api/pkg/apperror"
-	"mcm-api/pkg/common"
+	"mcm-api/pkg/enforcer"
 	"mcm-api/pkg/log"
 	"strconv"
 )
@@ -32,11 +32,11 @@ func requireAuthentication() echo.MiddlewareFunc {
 			if claims["facultyId"] != nil {
 				facultyId, _ = strconv.Atoi(claims["facultyId"].(string))
 			}
-			common.SetLoggedInUser(c, &common.LoggedInUser{
+			enforcer.SetLoggedInUser(c, &enforcer.LoggedInUser{
 				Id:        id,
 				Email:     claims["email"].(string),
 				Name:      claims["name"].(string),
-				Role:      common.Role(claims["role"].(string)),
+				Role:      enforcer.Role(claims["role"].(string)),
 				FacultyId: &facultyId,
 			})
 			return next(c)
