@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"mcm-api/pkg/apperror"
+	"reflect"
 )
 
 const (
@@ -18,26 +19,15 @@ type PaginateQuery struct {
 
 type CursorQuery struct {
 	Next  string `query:"next"`
-	Prev  string `query:"prev"`
 	Limit int    `query:"limit"`
 }
 
 func (c CursorQuery) GetNext(next interface{}) error {
-	var str []byte
-	_, err := base64.URLEncoding.Decode(str, []byte(c.Next))
+	decoded, err := base64.URLEncoding.DecodeString(c.Next)
 	if err != nil {
 		return apperror.New(apperror.ErrInvalid, "invalid next param", err)
 	}
-	return json.Unmarshal(str, next)
-}
-
-func (c CursorQuery) GetPrev(prev interface{}) error {
-	var str []byte
-	_, err := base64.URLEncoding.Decode(str, []byte(c.Prev))
-	if err != nil {
-		return apperror.New(apperror.ErrInvalid, "invalid prev param", err)
-	}
-	return json.Unmarshal(str, prev)
+	return json.Unmarshal(decoded, next)
 }
 
 func (c CursorQuery) GetLimit() int {
@@ -72,16 +62,6 @@ type PaginateResponse struct {
 	Data        interface{} `json:"data"`
 }
 
-func NewEmptyPaginateResponse() *PaginateResponse {
-	return &PaginateResponse{
-		Total:       0,
-		CurrentPage: 0,
-		LastPage:    0,
-		PerPage:     limitDefault,
-		Data:        nil,
-	}
-}
-
 func NewPaginateResponse(data interface{}, total int64, page int, limit int) *PaginateResponse {
 	return &PaginateResponse{
 		Total:       total,
@@ -103,20 +83,22 @@ func calculateLastPage(total int64, limit int) int {
 }
 
 type CursorResponse struct {
-	Next string      `json:"next"`
-	Prev string      `json:"prev"`
+	Next string      `json:"next,omitempty"`
 	Data interface{} `json:"data"`
 }
 
-func NewCursorResponse(data interface{}, next interface{}, prev interface{}) *CursorResponse {
-	nextStr, _ := json.Marshal(next)
-	prevStr, _ := json.Marshal(prev)
-	var next64, prev64 []byte
-	base64.URLEncoding.Encode(next64, nextStr)
-	base64.URLEncoding.Encode(prev64, prevStr)
+func isNil(a interface{}) bool {
+	return a == nil || reflect.ValueOf(a).IsNil()
+}
+
+func NewCursorResponse(data interface{}, next interface{}) *CursorResponse {
+	var nextStr string
+	if !isNil(next) {
+		nextJson, _ := json.Marshal(next)
+		nextStr = base64.StdEncoding.EncodeToString(nextJson)
+	}
 	return &CursorResponse{
-		Next: string(next64),
-		Prev: string(prevStr),
+		Next: nextStr,
 		Data: data,
 	}
 }

@@ -9,9 +9,9 @@ import (
 	"mcm-api/internal/core"
 	"mcm-api/pkg/article"
 	"mcm-api/pkg/authz"
+	"mcm-api/pkg/comment"
 	"mcm-api/pkg/contributesession"
 	"mcm-api/pkg/contribution"
-	"mcm-api/pkg/document"
 	"mcm-api/pkg/faculty"
 	"mcm-api/pkg/media"
 	"mcm-api/pkg/queue"
@@ -30,9 +30,6 @@ func InitializeServer() *Server {
 	authzService := authz.InitializeAuthService(config, service)
 	handler := authz.NewAuthHandler(authzService)
 	userHandler := user.NewUserHandler(config, service)
-	documentRepository := document.InitializeRepository(db)
-	documentService := document.InitializeService(documentRepository)
-	documentHandler := document.NewDocumentHandler(documentService)
 	facultyRepository := faculty.InitializeRepository(db)
 	facultyService := faculty.InitializeService(config, facultyRepository)
 	facultyHandler := faculty.NewHandler(config, facultyService)
@@ -50,6 +47,9 @@ func InitializeServer() *Server {
 	contributionService := contribution.InitializeService(config, contributionRepository, queueQueue, contributesessionService, articleService, mediaService)
 	contributionHandler := contribution.NewHandler(config, contributionService)
 	articleHandler := article.NewHandler(config, articleService)
-	server := newServer(config, startupService, handler, userHandler, documentHandler, facultyHandler, mediaHandler, contributesessionHandler, contributionHandler, articleHandler)
+	commentRepository := comment.InitializeRepository(db)
+	commentService := comment.InitializeService(config, commentRepository)
+	commentHandler := comment.NewHandler(config, commentService)
+	server := newServer(config, startupService, handler, userHandler, facultyHandler, mediaHandler, contributesessionHandler, contributionHandler, articleHandler, commentHandler)
 	return server
 }

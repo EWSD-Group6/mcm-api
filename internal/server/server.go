@@ -10,9 +10,9 @@ import (
 	"mcm-api/docs"
 	"mcm-api/pkg/article"
 	"mcm-api/pkg/authz"
+	"mcm-api/pkg/comment"
 	"mcm-api/pkg/contributesession"
 	"mcm-api/pkg/contribution"
-	"mcm-api/pkg/document"
 	"mcm-api/pkg/faculty"
 	"mcm-api/pkg/log"
 	"mcm-api/pkg/media"
@@ -29,12 +29,12 @@ type Server struct {
 	startupService    *startup.Service
 	authHandler       *authz.Handler
 	userHandler       *user.Handler
-	documentHandler   *document.Handler
 	faculty           *faculty.Handler
 	storage           *media.Handler
 	contributeSession *contributesession.Handler
 	contribution      *contribution.Handler
 	article           *article.Handler
+	comment           *comment.Handler
 }
 
 func newServer(
@@ -42,12 +42,12 @@ func newServer(
 	startupService *startup.Service,
 	authHandler *authz.Handler,
 	userHandler *user.Handler,
-	documentHandler *document.Handler,
 	facultyHandler *faculty.Handler,
 	storage *media.Handler,
 	contributeSession *contributesession.Handler,
 	contribution *contribution.Handler,
 	article *article.Handler,
+	comment *comment.Handler,
 ) *Server {
 	e := echo.New()
 	e.HideBanner = true
@@ -65,24 +65,24 @@ func newServer(
 		startupService:    startupService,
 		authHandler:       authHandler,
 		userHandler:       userHandler,
-		documentHandler:   documentHandler,
 		faculty:           facultyHandler,
 		storage:           storage,
 		contributeSession: contributeSession,
 		contribution:      contribution,
 		article:           article,
+		comment:           comment,
 	}
 }
 
 func (s *Server) registerHandler() {
 	s.authHandler.Register(s.echo.Group("auth"))
 	s.userHandler.Register(s.echo.Group("users"))
-	s.documentHandler.Register(s.echo.Group("documents"))
 	s.faculty.Register(s.echo.Group("faculties"))
 	s.storage.Register(s.echo.Group("storage"))
 	s.contributeSession.Register(s.echo.Group("contribute-sessions"))
 	s.contribution.Register(s.echo.Group("contributions"))
 	s.article.Register(s.echo.Group("articles"))
+	s.comment.Register(s.echo.Group("comments"))
 }
 
 // @securityDefinitions.apikey ApiKeyAuth

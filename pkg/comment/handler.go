@@ -6,7 +6,6 @@ import (
 	"mcm-api/pkg/apperror"
 	"mcm-api/pkg/middleware"
 	"net/http"
-	"strconv"
 )
 
 type Handler struct {
@@ -57,16 +56,12 @@ func (h *Handler) index(context echo.Context) error {
 // @Description get comment by ID
 // @Accept  json
 // @Produce  json
-// @Param id path int true "ID"
+// @Param id path string true "ID"
 // @Success 200 {object} comment.CommentRes
 // @Security ApiKeyAuth
 // @Router /comments/{id} [get]
 func (h *Handler) getById(context echo.Context) error {
-	id, err := strconv.Atoi(context.Param("id"))
-	if err != nil {
-		return err
-	}
-	result, err := h.service.FindById(context.Request().Context(), id)
+	result, err := h.service.FindById(context.Request().Context(), context.Param("id"))
 	if err != nil {
 		return apperror.HandleError(err, context)
 	}
@@ -100,22 +95,18 @@ func (h *Handler) create(context echo.Context) error {
 // @Description Update a comment
 // @Accept  json
 // @Produce  json
-// @Param id path int true "ID"
+// @Param id path string true "ID"
 // @Param body body comment.CommentUpdateReq true "update"
 // @Success 200 {object} comment.CommentRes
 // @Security ApiKeyAuth
 // @Router /comments/{id} [put]
 func (h *Handler) update(context echo.Context) error {
-	id, err := strconv.Atoi(context.Param("id"))
-	if err != nil {
-		return apperror.HandleError(err, context)
-	}
 	body := new(CommentUpdateReq)
-	err = context.Bind(body)
+	err := context.Bind(body)
 	if err != nil {
 		return apperror.HandleError(err, context)
 	}
-	result, err := h.service.Update(context.Request().Context(), id, body)
+	result, err := h.service.Update(context.Request().Context(), context.Param("id"), body)
 	if err != nil {
 		return apperror.HandleError(err, context)
 	}
@@ -127,16 +118,12 @@ func (h *Handler) update(context echo.Context) error {
 // @Description Delete a comment
 // @Accept  json
 // @Produce  json
-// @Param id path int true "ID"
+// @Param id path string true "ID"
 // @Success 200
 // @Security ApiKeyAuth
 // @Router /comments/{id} [delete]
 func (h *Handler) delete(context echo.Context) error {
-	id, err := strconv.Atoi(context.Param("id"))
-	if err != nil {
-		return apperror.HandleError(err, context)
-	}
-	err = h.service.Delete(context.Request().Context(), id)
+	err := h.service.Delete(context.Request().Context(), context.Param("id"))
 	if err != nil {
 		return apperror.HandleError(err, context)
 	}

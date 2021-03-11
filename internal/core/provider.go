@@ -14,9 +14,9 @@ import (
 	"mcm-api/config"
 	"mcm-api/pkg/article"
 	"mcm-api/pkg/authz"
+	"mcm-api/pkg/comment"
 	"mcm-api/pkg/contributesession"
 	"mcm-api/pkg/contribution"
-	"mcm-api/pkg/document"
 	"mcm-api/pkg/faculty"
 	"mcm-api/pkg/log"
 	"mcm-api/pkg/media"
@@ -64,7 +64,6 @@ var InfraSet = wire.NewSet(
 	queue.InitializeRedisQueue,
 )
 var HandlerSet = wire.NewSet(
-	document.NewDocumentHandler,
 	user.NewUserHandler,
 	authz.NewAuthHandler,
 	faculty.NewHandler,
@@ -72,4 +71,5 @@ var HandlerSet = wire.NewSet(
 	contributesession.NewHandler,
 	contribution.NewHandler,
 	article.NewHandler,
+	comment.NewHandler,
 )

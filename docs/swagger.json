@@ -109,11 +109,6 @@
                         "type": "string",
                         "name": "next",
                         "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "prev",
-                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -195,7 +190,7 @@
                 "summary": "Show a comment",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "ID",
                         "name": "id",
                         "in": "path",
@@ -230,7 +225,7 @@
                 "summary": "Update a comment",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "ID",
                         "name": "id",
                         "in": "path",
@@ -274,7 +269,7 @@
                 "summary": "Delete a comment",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "ID",
                         "name": "id",
                         "in": "path",
@@ -1406,6 +1401,9 @@
                 },
                 "createdAt": {
                     "type": "string"
+                },
+                "edited": {
+                    "type": "boolean"
                 },
                 "id": {
                     "type": "string"

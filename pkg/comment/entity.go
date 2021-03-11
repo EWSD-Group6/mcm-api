@@ -1,29 +1,21 @@
 package comment
 
 import (
-	"gorm.io/datatypes"
+	"mcm-api/pkg/user"
 	"time"
 )
 
-type Status string
-
-const (
-	Accepted  Status = "accepted"
-	Rejected  Status = "rejected"
-	Reviewing Status = "reviewing"
-)
-
 type Entity struct {
-	Id                  int64
-	UserId              int64
-	ContributeSessionId int64
-	ArticleId           int64
-	Images              datatypes.JSON
-	Status              Status
-	CreatedAt           time.Time
-	UpdatedAt           time.Time
+	Id             string `gorm:"default:null"`
+	UserId         int
+	User           user.Entity
+	ContributionId int
+	Content        string
+	Resolved       bool
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }
 
 func (e *Entity) TableName() string {
-	return "contributions"
+	return "comments"
 }
