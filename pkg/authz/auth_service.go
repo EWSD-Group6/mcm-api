@@ -44,7 +44,9 @@ func (s Service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse, 
 	claims["name"] = userResponse.Name
 	claims["email"] = userResponse.Email
 	claims["role"] = userResponse.Role
-	claims["facultyId"] = strconv.Itoa(*userResponse.FacultyId)
+	if userResponse.FacultyId != nil {
+		claims["facultyId"] = strconv.Itoa(*userResponse.FacultyId)
+	}
 	claims["exp"] = time.Now().Add(time.Hour * accessTokenTtl).Unix()
 
 	accessToken, err := token.SignedString([]byte(s.config.JwtSecret))
