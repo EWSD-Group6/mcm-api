@@ -247,6 +247,10 @@ func (s Service) GetImages(ctx context.Context, id int) ([]*ImageRes, error) {
 	return res, nil
 }
 
+func (s Service) GetAllAcceptedContributions(ctx context.Context, contributeSessionId int) ([]*Entity, error) {
+	return s.repository.GetAllAcceptedContributions(ctx, contributeSessionId)
+}
+
 func mapImageReqToEntity(images ...ImageCreateReq) []ImageEntity {
 	var result []ImageEntity
 	for i := range images {

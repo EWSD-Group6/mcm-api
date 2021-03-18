@@ -15,8 +15,9 @@ import (
 type TopicType string
 
 const (
-	ContributionCreated TopicType = "contribution-created"
-	ArticleUploaded     TopicType = "article-uploaded"
+	ContributionCreated     TopicType = "contribution-created"
+	ArticleUploaded         TopicType = "article-uploaded"
+	ExportContributeSession TopicType = "export-contribute-session"
 )
 
 type Message struct {
@@ -82,6 +83,17 @@ func (r *RedisQueue) Pop(ctx context.Context) (*Message, error) {
 		m.Data = payload
 	case ContributionCreated:
 		payload := &ContributionCreatedPayload{}
+		err = mapstructure.Decode(m.Data, payload)
+		if err != nil {
+			log.Logger.Error("decode payload failed",
+				zap.Error(err),
+				zap.ByteString("message", messageStr),
+			)
+			return nil, nil
+		}
+		m.Data = payload
+	case ExportContributeSession:
+		payload := &ExportContributeSessionPayload{}
 		err = mapstructure.Decode(m.Data, payload)
 		if err != nil {
 			log.Logger.Error("decode payload failed",

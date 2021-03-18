@@ -52,3 +52,8 @@ func (r *repository) FindAllUserOfFaculty(ctx context.Context, role enforcer.Rol
 	result := r.db.WithContext(ctx).Where("role = ? and faculty_id = ?", role, id).Find(&entities)
 	return entities, result.Error
 }
+
+func (r *repository) Update(ctx context.Context, entity *Entity) (*Entity, error) {
+	db := r.db.WithContext(ctx).Save(entity)
+	return entity, db.Error
+}

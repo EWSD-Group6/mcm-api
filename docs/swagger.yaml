@@ -274,6 +274,19 @@ definitions:
       updatedAt:
         type: string
     type: object
+  user.UserUpdateReq:
+    properties:
+      email:
+        type: string
+      facultyId:
+        type: integer
+      name:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
@@ -1036,7 +1049,7 @@ paths:
       summary: Show a user
       tags:
       - Users
-    put:
+    patch:
       consumes:
       - application/json
       description: Update a user
@@ -1046,12 +1059,12 @@ paths:
         name: id
         required: true
         type: integer
-      - description: create user
+      - description: update user
         in: body
         name: user
         required: true
         schema:
-          $ref: '#/definitions/user.UserCreateReq'
+          $ref: '#/definitions/user.UserUpdateReq'
       produces:
       - application/json
       responses:

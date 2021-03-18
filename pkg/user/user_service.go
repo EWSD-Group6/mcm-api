@@ -136,6 +136,45 @@ func (s *Service) GetAllUserOfFaculty(ctx context.Context, role enforcer.Role, f
 	return s.repository.FindAllUserOfFaculty(ctx, role, facultyId)
 }
 
+func (s *Service) Update(ctx context.Context, id int, req *UserUpdateReq) (*UserResponse, error) {
+	err := req.Validate()
+	if err != nil {
+		return nil, err
+	}
+	entity, err := s.repository.FindById(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.New(apperror.ErrNotFound, "user not found", err)
+		}
+		return nil, err
+	}
+	if req.Password != nil {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*req.Password), 10)
+		if err != nil {
+			return nil, err
+		}
+		entity.Password = string(hashedPassword)
+	}
+	if req.Role != nil {
+		entity.Role = *req.Role
+	}
+	if req.Email != nil {
+		entity.Email = *req.Email
+	}
+	if req.Name != nil {
+		entity.Name = *req.Name
+	}
+	if req.FacultyId != nil {
+		entity.FacultyId = req.FacultyId
+	}
+
+	entity, err = s.repository.Update(ctx, entity)
+	if err != nil {
+		return nil, err
+	}
+	return mapEntityToResponse(entity), nil
+}
+
 func mapEntitiesToResponse(entity []*Entity) []*UserResponse {
 	var result []*UserResponse
 	for i := range entity {

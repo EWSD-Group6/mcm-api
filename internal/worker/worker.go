@@ -7,9 +7,11 @@ import (
 	"go.uber.org/zap"
 	"mcm-api/config"
 	"mcm-api/pkg/article"
+	"mcm-api/pkg/contribution"
 	"mcm-api/pkg/converter"
 	"mcm-api/pkg/enforcer"
 	"mcm-api/pkg/log"
+	"mcm-api/pkg/media"
 	"mcm-api/pkg/notification"
 	"mcm-api/pkg/queue"
 	"mcm-api/pkg/user"
@@ -18,6 +20,8 @@ import (
 	"time"
 )
 
+const JobRuntimeTimeoutMinute = 5
+
 type worker struct {
 	cfg                 *config.Config
 	queue               queue.Queue
@@ -25,6 +29,8 @@ type worker struct {
 	articleService      *article.Service
 	notificationService *notification.Service
 	userService         *user.Service
+	contributionService *contribution.Service
+	mediaService        media.Service
 }
 
 func newWorker(
@@ -34,6 +40,7 @@ func newWorker(
 	articleService *article.Service,
 	notificationService *notification.Service,
 	userService *user.Service,
+	mediaService media.Service,
 ) *worker {
 	return &worker{
 		cfg:                 config,
@@ -42,6 +49,7 @@ func newWorker(
 		articleService:      articleService,
 		notificationService: notificationService,
 		userService:         userService,
+		mediaService:        mediaService,
 	}
 }
 
@@ -75,7 +83,7 @@ poolQueueLoop:
 				continue
 			}
 			log.Logger.Info("receive message", zap.Any("message", message))
-			ctxTimeout, cancelFunc := context.WithTimeout(context.Background(), time.Minute*5)
+			ctxTimeout, cancelFunc := context.WithTimeout(context.Background(), time.Minute*JobRuntimeTimeoutMinute)
 			err = w.handleMessage(ctxTimeout, message)
 			cancelFunc()
 			if err != nil {
@@ -93,6 +101,8 @@ func (w worker) handleMessage(ctx context.Context, message *queue.Message) error
 		return w.contributionCreatedHandler(ctx, message)
 	case queue.ArticleUploaded:
 		return w.articleUploadedHandler(ctx, message)
+	case queue.ExportContributeSession:
+		return w.exportContributeSessionHandler(ctx, message)
 	default:
 		return fmt.Errorf("unknown topic %v", message.Topic)
 	}

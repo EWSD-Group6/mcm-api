@@ -227,3 +227,7 @@ func (s Service) UpdateLinkPdfForVersion(ctx context.Context, id int, key string
 	entity.LinkPdf = key
 	return s.repository.UpdateVersion(ctx, entity)
 }
+
+func (s Service) GetLatestVersionOfArticle(ctx context.Context, articleId int) (*Version, error) {
+	return s.repository.GetLatestVersionOfArticle(ctx, articleId)
+}
