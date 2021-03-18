@@ -32,3 +32,8 @@ type FileUploadPreviewReq struct {
 type UploadQuery struct {
 	Type UploadType `query:"type" enums:"document,image"`
 }
+
+type ContributionUploadReq struct {
+	File                io.Reader
+	ContributeSessionId int
+}

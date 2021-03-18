@@ -504,6 +504,40 @@ var doc = `{
                 }
             }
         },
+        "/contribute-sessions/{id}/export": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Export a Contribute Session",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Contribute Sessions"
+                ],
+                "summary": "Export a Contribute Session",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/contributions": {
             "get": {
                 "security": [
@@ -1701,7 +1735,14 @@ var doc = `{
                     "type": "string"
                 },
                 "role": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "admin",
+                        "marketing_manager",
+                        "marketing_coordinator",
+                        "student",
+                        "guest"
+                    ]
                 }
             }
         },

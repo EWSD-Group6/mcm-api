@@ -16,7 +16,7 @@ type UserCreateReq struct {
 	Name      string        `json:"name"`
 	Email     string        `json:"email"`
 	Password  string        `json:"password"`
-	Role      enforcer.Role `json:"role"`
+	Role      enforcer.Role `json:"role" enums:"admin,marketing_manager,marketing_coordinator,student,guest"`
 	FacultyId *int          `json:"facultyId"`
 }
 

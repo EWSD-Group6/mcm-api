@@ -10,8 +10,10 @@ import (
 	"io/fs"
 	"mcm-api/pkg/contribution"
 	"mcm-api/pkg/log"
+	"mcm-api/pkg/media"
 	"mcm-api/pkg/queue"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -23,32 +25,104 @@ func (w worker) exportContributeSessionHandler(ctx context.Context, message *que
 		return err
 	}
 	defer func() {
-		err = os.Remove(temp)
+		err = os.RemoveAll(temp)
 		if err != nil {
 			log.Logger.Error("failed to delete folder", zap.String("name", temp))
 		}
 	}()
-	if v, ok := message.Data.(*queue.ExportContributeSessionPayload); ok {
-		contributions, err := w.contributionService.GetAllAcceptedContributions(ctx, v.ContributeSessionId)
+	v, ok := message.Data.(*queue.ExportContributeSessionPayload)
+	if !ok {
+		return errors.New("unknown message")
+	}
+	contributions, err := w.contributionService.GetAllAcceptedContributions(ctx, v.ContributeSessionId)
+	if err != nil {
+		return err
+	}
+	if len(contributions) == 0 {
+		log.Logger.Info("contribution session dont have any contributions", zap.Int("id", v.ContributeSessionId))
+		return nil
+	} else {
+		log.Logger.Info(fmt.Sprintf("found %v contributions", len(contributions)))
+	}
+	waitGroup := sync.WaitGroup{}
+	waitGroup.Add(len(contributions))
+	for _, contrib := range contributions {
+		go func(c *contribution.Entity) {
+			e := w.downloadContribution(ctx, temp, c)
+			if e != nil {
+				log.Logger.Error("download contribution failed", zap.Error(e))
+			} else {
+				log.Logger.Info("finish download contribution", zap.Int("id", c.Id))
+			}
+			waitGroup.Done()
+		}(contrib)
+	}
+	waitGroup.Wait()
+	zipFile, err := recursiveZip(temp)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = zipFile.Close()
+		_ = os.Remove(zipFile.Name())
+	}()
+	uploadResult, err := w.mediaService.UploadContribution(ctx, &media.ContributionUploadReq{
+		File:                zipFile,
+		ContributeSessionId: v.ContributeSessionId,
+	})
+	if err != nil {
+		return err
+	}
+	return w.contributionSessionService.UpdateExportedAsset(
+		ctx, v.ContributeSessionId, uploadResult.Key)
+}
+
+func recursiveZip(basePath string) (*os.File, error) {
+	zipfile, err := os.CreateTemp("", "*.zip")
+	if err != nil {
+		return nil, err
+	}
+
+	w := zip.NewWriter(zipfile)
+	defer func() {
+		_ = w.Close()
+	}()
+
+	walker := func(path string, info os.FileInfo, err error) error {
+		log.Logger.Debug("current path", zap.String("path", path))
 		if err != nil {
 			return err
 		}
-		waitGroup := sync.WaitGroup{}
-		waitGroup.Add(len(contributions))
-		for _, contrib := range contributions {
-			go func(c *contribution.Entity) {
-				e := w.downloadContribution(ctx, temp, c)
-				if e != nil {
-					log.Logger.Error("download contribution failed", zap.Error(e))
-				}
-				waitGroup.Done()
-			}(contrib)
+		if info.IsDir() {
+			return nil
 		}
-		waitGroup.Wait()
+		file, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer func() {
+			_ = file.Close()
+		}()
 
-	} else {
-		return errors.New("unknown message")
+		// Ensure that `path` is not absolute; it should not start with "/".
+		// transforms path into a zip-root relative path.
+		f, err := w.Create(strings.TrimPrefix(path, basePath))
+		if err != nil {
+			return err
+		}
+
+		_, err = io.Copy(f, file)
+		if err != nil {
+			return err
+		}
+
+		return nil
 	}
+	err = filepath.Walk(basePath, walker)
+	if err != nil {
+		return nil, err
+	}
+	return zipfile, nil
 }
 
 func (w worker) downloadContribution(ctx context.Context, basePath string, c *contribution.Entity) error {
@@ -70,7 +144,7 @@ func (w worker) downloadContribution(ctx context.Context, basePath string, c *co
 		return err
 	}
 	defer func() {
-		_ := articleReader.Close()
+		_ = articleReader.Close()
 	}()
 	_, err = io.Copy(articleFile, articleReader)
 	if err != nil {
@@ -90,8 +164,9 @@ func (w worker) downloadContribution(ctx context.Context, basePath string, c *co
 		}
 		_, er = io.Copy(imageWriter, imageReader)
 		if er != nil {
-
+			return er
 		}
 		_ = imageReader.Close()
 	}
+	return nil
 }

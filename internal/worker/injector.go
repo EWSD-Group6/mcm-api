@@ -6,6 +6,8 @@ import (
 	"github.com/google/wire"
 	"mcm-api/internal/core"
 	"mcm-api/pkg/article"
+	"mcm-api/pkg/contributesession"
+	"mcm-api/pkg/contribution"
 	"mcm-api/pkg/converter"
 	"mcm-api/pkg/faculty"
 	"mcm-api/pkg/media"
@@ -22,5 +24,7 @@ func InitializeWorker() *worker {
 		notification.Set,
 		user.Set,
 		faculty.Set,
+		contribution.Set,
+		contributesession.Set,
 		newWorker))
 }

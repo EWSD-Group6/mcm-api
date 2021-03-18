@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 	"mcm-api/config"
 	"mcm-api/pkg/article"
+	"mcm-api/pkg/contributesession"
 	"mcm-api/pkg/contribution"
 	"mcm-api/pkg/converter"
 	"mcm-api/pkg/enforcer"
@@ -23,14 +24,15 @@ import (
 const JobRuntimeTimeoutMinute = 5
 
 type worker struct {
-	cfg                 *config.Config
-	queue               queue.Queue
-	converter           converter.DocumentConverter
-	articleService      *article.Service
-	notificationService *notification.Service
-	userService         *user.Service
-	contributionService *contribution.Service
-	mediaService        media.Service
+	cfg                        *config.Config
+	queue                      queue.Queue
+	converter                  converter.DocumentConverter
+	articleService             *article.Service
+	notificationService        *notification.Service
+	userService                *user.Service
+	contributionService        *contribution.Service
+	contributionSessionService *contributesession.Service
+	mediaService               media.Service
 }
 
 func newWorker(
@@ -41,15 +43,19 @@ func newWorker(
 	notificationService *notification.Service,
 	userService *user.Service,
 	mediaService media.Service,
+	contributionService *contribution.Service,
+	contributionSessionService *contributesession.Service,
 ) *worker {
 	return &worker{
-		cfg:                 config,
-		queue:               queue,
-		converter:           converter,
-		articleService:      articleService,
-		notificationService: notificationService,
-		userService:         userService,
-		mediaService:        mediaService,
+		cfg:                        config,
+		queue:                      queue,
+		converter:                  converter,
+		articleService:             articleService,
+		notificationService:        notificationService,
+		userService:                userService,
+		contributionService:        contributionService,
+		contributionSessionService: contributionSessionService,
+		mediaService:               mediaService,
 	}
 }
 
@@ -96,6 +102,11 @@ poolQueueLoop:
 }
 
 func (w worker) handleMessage(ctx context.Context, message *queue.Message) error {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Logger.Error("recover from panic", zap.Any("error", r))
+		}
+	}()
 	switch message.Topic {
 	case queue.ContributionCreated:
 		return w.contributionCreatedHandler(ctx, message)

@@ -255,6 +255,12 @@ definitions:
       password:
         type: string
       role:
+        enum:
+        - admin
+        - marketing_manager
+        - marketing_coordinator
+        - student
+        - guest
         type: string
     type: object
   user.UserResponse:
@@ -583,6 +589,27 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update a Contribute Session
+      tags:
+      - Contribute Sessions
+  /contribute-sessions/{id}/export:
+    post:
+      consumes:
+      - application/json
+      description: Export a Contribute Session
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Export a Contribute Session
       tags:
       - Contribute Sessions
   /contributions:
