@@ -27,7 +27,7 @@ func (h *Handler) Register(group *echo.Group) {
 	group.GET("", h.index, middleware.RequirePermission(enforcer.ReadContributeSession))
 	group.GET("/:id", h.getById, middleware.RequirePermission(enforcer.ReadContributeSession))
 	group.POST("", h.create, middleware.RequirePermission(enforcer.CreateContributeSession))
-	group.POST("/:id/export", h.create, middleware.RequirePermission(enforcer.ExportContributeSession))
+	group.POST("/:id/export", h.export, middleware.RequirePermission(enforcer.ExportContributeSession))
 	group.PUT("/:id", h.update, middleware.RequirePermission(enforcer.UpdateContributeSession))
 	group.DELETE("/:id", h.delete, middleware.RequirePermission(enforcer.DeleteContributeSession))
 }
@@ -143,4 +143,25 @@ func (h *Handler) delete(context echo.Context) error {
 		return apperror.HandleError(err, context)
 	}
 	return context.NoContent(http.StatusNoContent)
+}
+
+// @Tags Contribute Sessions
+// @Summary Export a Contribute Session
+// @Description Export a Contribute Session
+// @Accept  json
+// @Produce  json
+// @Param id path int true "ID"
+// @Success 200
+// @Security ApiKeyAuth
+// @Router /contribute-sessions/{id}/export [post]
+func (h *Handler) export(context echo.Context) error {
+	id, err := strconv.Atoi(context.Param("id"))
+	if err != nil {
+		return apperror.HandleError(err, context)
+	}
+	err = h.service.ExportAsset(context.Request().Context(), id)
+	if err != nil {
+		return apperror.HandleError(err, context)
+	}
+	return context.NoContent(http.StatusOK)
 }

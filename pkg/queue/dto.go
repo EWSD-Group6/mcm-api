@@ -12,12 +12,12 @@ type ContributionCreatedPayload struct {
 	User           enforcer.LoggedInUser `json:"user"`
 }
 
-type ArticleUploadedMessage struct {
-	Message
-}
-
 type ArticleUploadedPayload struct {
-	ArticleId int                   `json:"articleId" mapstructure:"articleId"`
+	ArticleId int                   `json:"articleId"`
 	Link      string                `json:"link"`
 	User      enforcer.LoggedInUser `json:"user"`
+}
+
+type ExportContributeSessionPayload struct {
+	ContributeSessionId int `json:"contributeSessionId"`
 }

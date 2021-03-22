@@ -16,7 +16,7 @@ type UserCreateReq struct {
 	Name      string        `json:"name"`
 	Email     string        `json:"email"`
 	Password  string        `json:"password"`
-	Role      enforcer.Role `json:"role"`
+	Role      enforcer.Role `json:"role" enums:"admin,marketing_manager,marketing_coordinator,student,guest"`
 	FacultyId *int          `json:"facultyId"`
 }
 
@@ -28,6 +28,25 @@ func (c *UserCreateReq) Validate() error {
 		validation.Field(&c.Role, validation.Required, validation.In(
 			enforcer.Guest, enforcer.Student, enforcer.MarketingCoordinator, enforcer.MarketingManager, enforcer.Administrator)),
 		validation.Field(&c.FacultyId, validation.Required.When(isRoleRequiredFaculty(c.Role))),
+	)
+}
+
+type UserUpdateReq struct {
+	Name      *string        `json:"name"`
+	Email     *string        `json:"email"`
+	Password  *string        `json:"password"`
+	Role      *enforcer.Role `json:"role"`
+	FacultyId *int           `json:"facultyId"`
+}
+
+func (c UserUpdateReq) Validate() error {
+	return validation.ValidateStruct(&c,
+		validation.Field(&c.Name, validation.Length(5, 50)),
+		validation.Field(&c.Email, is.Email),
+		validation.Field(&c.Password, validation.Length(5, 50)),
+		validation.Field(&c.Role, validation.In(
+			enforcer.Guest, enforcer.Student, enforcer.MarketingCoordinator, enforcer.MarketingManager, enforcer.Administrator)),
+		validation.Field(&c.FacultyId),
 	)
 }
 

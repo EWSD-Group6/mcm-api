@@ -9,21 +9,25 @@ import (
 	"mcm-api/pkg/apperror"
 	"mcm-api/pkg/common"
 	"mcm-api/pkg/log"
+	"mcm-api/pkg/queue"
 	"time"
 )
 
 type Service struct {
 	cfg        *config.Config
 	repository *repository
+	queue      queue.Queue
 }
 
 func InitializeService(
 	cfg *config.Config,
 	repository *repository,
+	queue queue.Queue,
 ) *Service {
 	return &Service{
 		cfg:        cfg,
 		repository: repository,
+		queue:      queue,
 	}
 }
 
@@ -125,6 +129,30 @@ func (s Service) GetCurrentSession(ctx context.Context) (*SessionRes, error) {
 		return nil, err
 	}
 	return mapEntityToRes(entity), nil
+}
+
+func (s Service) UpdateExportedAsset(ctx context.Context, id int, key string) error {
+	entity, err := s.repository.FindById(ctx, id)
+	if err != nil {
+		return err
+	}
+	entity.ExportedAssets = key
+	_, err = s.repository.Update(ctx, entity)
+	return err
+}
+
+func (s Service) ExportAsset(ctx context.Context, id int) error {
+	entity, err := s.repository.FindById(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperror.New(apperror.ErrNotFound, "contribution session not found", err)
+		}
+		return err
+	}
+	return s.queue.Add(ctx, &queue.Message{
+		Topic: queue.ExportContributeSession,
+		Data:  queue.ExportContributeSessionPayload{ContributeSessionId: entity.Id},
+	})
 }
 
 func mapEntityToRes(entity *Entity) *SessionRes {

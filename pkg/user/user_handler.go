@@ -27,7 +27,7 @@ func (h *Handler) Register(group *echo.Group) {
 	group.GET("", h.index, middleware.RequirePermission(enforcer.ReadUser))
 	group.GET("/:id", h.getById, middleware.RequirePermission(enforcer.ReadUser))
 	group.POST("", h.createUser, middleware.RequirePermission(enforcer.CreateUser))
-	group.PUT("/:id", h.updateUser, middleware.RequirePermission(enforcer.UpdateUser))
+	group.PATCH("/:id", h.updateUser, middleware.RequirePermission(enforcer.UpdateUser))
 	group.DELETE("/:id", h.deleteUser, middleware.RequirePermission(enforcer.DeleteUser))
 }
 
@@ -99,7 +99,7 @@ func (h Handler) createUser(ctx echo.Context) error {
 	if err != nil {
 		return apperror.HandleError(err, ctx)
 	}
-	return ctx.JSON(http.StatusOK, userResponse)
+	return ctx.JSON(http.StatusCreated, userResponse)
 }
 
 // @Tags Users
@@ -108,12 +108,27 @@ func (h Handler) createUser(ctx echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Param id path int true "User ID"
-// @Param user body user.UserCreateReq true "create user"
+// @Param user body user.UserUpdateReq true "update user"
 // @Success 200 {object} user.UserResponse
 // @Security ApiKeyAuth
-// @Router /users/{id} [put]
+// @Router /users/{id} [patch]
 func (h Handler) updateUser(ctx echo.Context) error {
-	return nil
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		return apperror.
+			New(apperror.ErrInvalid, "Id should be string", err).
+			ToResponse(ctx)
+	}
+	req := &UserUpdateReq{}
+	err = ctx.Bind(req)
+	if err != nil {
+		return err
+	}
+	userResponse, err := h.service.Update(ctx.Request().Context(), id, req)
+	if err != nil {
+		return apperror.HandleError(err, ctx)
+	}
+	return ctx.JSON(http.StatusOK, userResponse)
 }
 
 // @Tags Users

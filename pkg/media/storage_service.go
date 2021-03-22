@@ -49,6 +49,7 @@ type Service interface {
 	UploadDocumentOriginal(ctx context.Context, req *FileUploadOriginalReq) (*UploadResult, error)
 	UploadDocumentPreview(ctx context.Context, req *FileUploadPreviewReq) (*UploadResult, error)
 	UploadImage(ctx context.Context, req *FileUploadOriginalReq) (*UploadResult, error)
+	UploadContribution(ctx context.Context, req *ContributionUploadReq) (*UploadResult, error)
 }
 
 type S3StorageService struct {
@@ -102,6 +103,23 @@ func (s S3StorageService) UploadImage(ctx context.Context, req *FileUploadOrigin
 		"userId":       aws.String(strconv.Itoa(req.User.Id)),
 		"originalName": aws.String(req.Name),
 	}, m)
+}
+
+func (s S3StorageService) UploadContribution(ctx context.Context, req *ContributionUploadReq) (*UploadResult, error) {
+	key := fmt.Sprintf("contribution-%v.zip", req.ContributeSessionId)
+	output, err := s.s3manager.UploadWithContext(ctx, &s3manager.UploadInput{
+		ACL:         aws.String(s3.ObjectCannedACLPrivate),
+		Body:        req.File,
+		Bucket:      aws.String(s.config.MediaBucket),
+		Key:         aws.String(key),
+		ContentType: aws.String("application/zip"),
+		Metadata:    nil,
+	})
+	if err != nil {
+		return nil, err
+	}
+	log.Logger.Info("upload file completed", zap.Any("output", output))
+	return &UploadResult{Key: key}, nil
 }
 
 func (s S3StorageService) GetUrl(ctx context.Context, key string) (string, error) {
