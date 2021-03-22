@@ -62,6 +62,7 @@ func (w worker) exportContributeSessionHandler(ctx context.Context, message *que
 	if err != nil {
 		return err
 	}
+	_, _ = zipFile.Seek(0, 0)
 	defer func() {
 		_ = zipFile.Close()
 		_ = os.Remove(zipFile.Name())
@@ -106,7 +107,7 @@ func recursiveZip(basePath string) (*os.File, error) {
 
 		// Ensure that `path` is not absolute; it should not start with "/".
 		// transforms path into a zip-root relative path.
-		f, err := w.Create(strings.TrimPrefix(path, basePath))
+		f, err := w.Create(strings.TrimPrefix(path, basePath+"/"))
 		if err != nil {
 			return err
 		}
@@ -131,7 +132,7 @@ func (w worker) downloadContribution(ctx context.Context, basePath string, c *co
 		return err
 	}
 	contributionFolder := basePath + "/" + strconv.Itoa(c.Id)
-	err = os.Mkdir(contributionFolder, fs.ModeDir)
+	err = os.Mkdir(contributionFolder, fs.ModePerm)
 	if err != nil {
 		return err
 	}

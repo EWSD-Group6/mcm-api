@@ -78,6 +78,8 @@ func (r repository) GetImagesById(ctx context.Context, id int) ([]*ImageEntity, 
 
 func (r repository) GetAllAcceptedContributions(ctx context.Context, contributeSessionId int) ([]*Entity, error) {
 	var entities []*Entity
-	result := r.db.WithContext(ctx).Where("status = ? and contributeSessionId = ?", Accepted, contributeSessionId)
+	result := r.db.WithContext(ctx).
+		Where("status = ? and contribute_session_id = ?", Accepted, contributeSessionId).
+		Find(&entities)
 	return entities, result.Error
 }
