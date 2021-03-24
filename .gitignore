@@ -16,3 +16,4 @@
 .env
 tmp
 .idea
+api-module/*

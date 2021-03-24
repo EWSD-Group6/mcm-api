@@ -28,6 +28,7 @@ func (h *Handler) Register(group *echo.Group) {
 	group.GET("/:id/images", h.images, middleware.RequirePermission(enforcer.ReadContribution))
 	group.GET("/:id", h.getById, middleware.RequirePermission(enforcer.ReadContribution))
 	group.POST("", h.create, middleware.RequirePermission(enforcer.CreateContribution))
+	group.POST("/:id/status", h.updateStatus, middleware.RequirePermission(enforcer.UpdateContributionStatus))
 	group.PUT("/:id", h.update, middleware.RequirePermission(enforcer.UpdateContribution))
 	group.DELETE("/:id", h.delete, middleware.RequirePermission(enforcer.DeleteContribution))
 }
@@ -164,4 +165,31 @@ func (h *Handler) images(context echo.Context) error {
 		return apperror.HandleError(err, context)
 	}
 	return context.JSON(http.StatusOK, images)
+}
+
+// @Tags Contributions
+// @Summary Update contribution status
+// @Description Update contribution status
+// @Accept  json
+// @Produce  json
+// @Param id path int true "ID"
+// @Param body body contribution.ContributionStatusReq true "update"
+// @Success 200
+// @Security ApiKeyAuth
+// @Router /contributions/{id}/status [post]
+func (h *Handler) updateStatus(context echo.Context) error {
+	id, err := strconv.Atoi(context.Param("id"))
+	if err != nil {
+		return apperror.HandleError(err, context)
+	}
+	body := new(ContributionStatusReq)
+	err = context.Bind(body)
+	if err != nil {
+		return apperror.HandleError(err, context)
+	}
+	err = h.service.UpdateStatus(context.Request().Context(), id, body)
+	if err != nil {
+		return apperror.HandleError(err, context)
+	}
+	return context.NoContent(http.StatusOK)
 }

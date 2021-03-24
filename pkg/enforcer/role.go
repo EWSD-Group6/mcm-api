@@ -44,7 +44,7 @@ func init() {
 
 	addPermissions(MarketingCoordinator,
 		ReadContribution,
-
+		UpdateContributionStatus,
 		ReadComment,
 		UpdateComment,
 		CreateComment,

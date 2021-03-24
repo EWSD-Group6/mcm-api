@@ -25,6 +25,7 @@ const (
 	CreateContribution
 	UpdateContribution
 	DeleteContribution
+	UpdateContributionStatus
 
 	ReadComment
 	CreateComment

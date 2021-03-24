@@ -11,3 +11,6 @@ start-dev:
 build-air:
 	swag init -g internal/server/server.go
 	go build -o ./tmp/main .
+
+build-api-sdk:
+	./scripts/generate-api-sdk.sh

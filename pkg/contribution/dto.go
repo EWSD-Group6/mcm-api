@@ -85,3 +85,16 @@ func (r *ContributionUpdateReq) Validate() error {
 		validation.Field(&r.Images, validation.Required.When(r.Article == nil)),
 	)
 }
+
+type ContributionStatusReq struct {
+	Status Status `json:"status"`
+}
+
+func (c ContributionStatusReq) Validate() error {
+	return validation.ValidateStruct(&c,
+		validation.Field(&c.Status,
+			validation.Required,
+			validation.In(Accepted, Reviewing, Rejected),
+		),
+	)
+}

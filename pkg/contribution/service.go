@@ -251,6 +251,29 @@ func (s Service) GetAllAcceptedContributions(ctx context.Context, contributeSess
 	return s.repository.GetAllAcceptedContributions(ctx, contributeSessionId)
 }
 
+func (s Service) UpdateStatus(ctx context.Context, id int, body *ContributionStatusReq) error {
+	loggedInUser, err := enforcer.GetLoggedInUser(ctx)
+	if err != nil {
+		return err
+	}
+	if err = body.Validate(); err != nil {
+		return err
+	}
+	entity, err := s.repository.FindById(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		}
+		return err
+	}
+	if loggedInUser.FacultyId != entity.User.FacultyId {
+		return apperror.New(apperror.ErrForbidden, "cant not change status of other faculty", nil)
+	}
+	entity.Status = body.Status
+	_, err = s.repository.Update(ctx, entity)
+	return err
+}
+
 func mapImageReqToEntity(images ...ImageCreateReq) []ImageEntity {
 	var result []ImageEntity
 	for i := range images {

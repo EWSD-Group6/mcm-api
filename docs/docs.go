@@ -805,6 +805,49 @@ var doc = `{
                 }
             }
         },
+        "/contributions/{id}/status": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update contribution status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Contributions"
+                ],
+                "summary": "Update contribution status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "update",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/contribution.ContributionStatusReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/faculties": {
             "get": {
                 "security": [
@@ -1602,6 +1645,14 @@ var doc = `{
                 },
                 "user": {
                     "$ref": "#/definitions/contribution.UserRes"
+                }
+            }
+        },
+        "contribution.ContributionStatusReq": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
                 }
             }
         },

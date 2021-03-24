@@ -171,6 +171,11 @@ definitions:
       user:
         $ref: '#/definitions/contribution.UserRes'
     type: object
+  contribution.ContributionStatusReq:
+    properties:
+      status:
+        type: string
+    type: object
   contribution.ContributionUpdateReq:
     properties:
       article:
@@ -772,18 +777,45 @@ paths:
               $ref: '#/definitions/contribution.ImageRes'
             type: array
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: [ ]
       summary: Get contribution images
       tags:
-      - Contributions
+        - Contributions
+  /contributions/{id}/status:
+    post:
+      consumes:
+        - application/json
+      description: Update contribution status
+      parameters:
+        - description: ID
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: update
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/contribution.ContributionStatusReq'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+        - ApiKeyAuth: [ ]
+      summary: Update contribution status
+      tags:
+        - Contributions
   /faculties:
     get:
       consumes:
-      - application/json
+        - application/json
       description: List faculties
       parameters:
-      - in: query
-        name: limit
+        - in: query
+          name: limit
         type: integer
       - in: query
         name: page
