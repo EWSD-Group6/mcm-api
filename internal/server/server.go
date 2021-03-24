@@ -56,6 +56,7 @@ func newServer(
 		AllowOrigins: []string{
 			"http://localhost:4200",
 			"https://localhost:4200",
+			"https://hoppscotch.io",
 			config.WebAppUrl,
 		},
 	}))

@@ -48,7 +48,7 @@ func InitializeServer() *Server {
 	contributionHandler := contribution.NewHandler(config, contributionService)
 	articleHandler := article.NewHandler(config, articleService)
 	commentRepository := comment.InitializeRepository(db)
-	commentService := comment.InitializeService(config, commentRepository)
+	commentService := comment.InitializeService(config, commentRepository, client, contributionService)
 	commentHandler := comment.NewHandler(config, commentService)
 	server := newServer(config, startupService, handler, userHandler, facultyHandler, mediaHandler, contributesessionHandler, contributionHandler, articleHandler, commentHandler)
 	return server

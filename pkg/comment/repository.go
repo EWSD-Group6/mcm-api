@@ -53,6 +53,7 @@ func (r repository) FindCursor(ctx context.Context, query *IndexQuery) ([]*Entit
 
 func (r repository) Create(ctx context.Context, entity *Entity) (*Entity, error) {
 	db := r.db.WithContext(ctx).Create(entity)
+	r.db.WithContext(ctx).First(&entity.User, entity.UserId)
 	return entity, db.Error
 }
 

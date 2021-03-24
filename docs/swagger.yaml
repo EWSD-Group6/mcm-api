@@ -816,10 +816,10 @@ paths:
       parameters:
         - in: query
           name: limit
-        type: integer
-      - in: query
-        name: page
-        type: integer
+          type: integer
+        - in: query
+          name: page
+          type: integer
       produces:
       - application/json
       responses:

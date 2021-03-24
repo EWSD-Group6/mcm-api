@@ -20,6 +20,7 @@ require (
 	github.com/swaggo/swag v1.7.0
 	go.uber.org/zap v1.10.0
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
+	golang.org/x/net v0.0.0-20210324051636-2c4c8ecb7826 // indirect
 	gorm.io/driver/postgres v1.0.8
 	gorm.io/gorm v1.20.12
 )

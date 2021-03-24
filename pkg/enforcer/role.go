@@ -56,8 +56,11 @@ func init() {
 		UpdateContribution,
 		CreateContribution,
 		DeleteContribution,
-
 		CreateMedia,
+		ReadComment,
+		UpdateComment,
+		CreateComment,
+		DeleteComment,
 	)
 
 	addPermissions(Guest, ReadContribution)

@@ -22,6 +22,18 @@ func RequireAuthentication(jwtSecret string) echo.MiddlewareFunc {
 	}), requireAuthentication())
 }
 
+func RequireAuthenticationQuery(jwtSecret string) echo.MiddlewareFunc {
+	return Compose(middleware.JWTWithConfig(middleware.JWTConfig{
+		TokenLookup: "query:token",
+		SigningKey:  []byte(jwtSecret),
+		ErrorHandlerWithContext: func(err error, context echo.Context) error {
+			log.Logger.Debug("JWT error", zap.Error(err))
+			appError := apperror.New(apperror.ErrUnauthorized, "invalid token", nil)
+			return apperror.HandleError(appError, context)
+		},
+	}), requireAuthentication())
+}
+
 func requireAuthentication() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {

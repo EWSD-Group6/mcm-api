@@ -1,12 +1,17 @@
 package comment
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 	"mcm-api/config"
 	"mcm-api/pkg/apperror"
 	"mcm-api/pkg/enforcer"
+	"mcm-api/pkg/log"
 	"mcm-api/pkg/middleware"
 	"net/http"
+	"strconv"
 )
 
 type Handler struct {
@@ -22,6 +27,10 @@ func NewHandler(config *config.Config, service *Service) *Handler {
 }
 
 func (h *Handler) Register(group *echo.Group) {
+	group.GET("/sse", h.realTime,
+		middleware.RequireAuthenticationQuery(h.config.JwtSecret),
+		middleware.RequirePermission(enforcer.ReadComment),
+	)
 	group.Use(middleware.RequireAuthentication(h.config.JwtSecret))
 	group.GET("", h.index, middleware.RequirePermission(enforcer.ReadComment))
 	group.GET("/:id", h.getById, middleware.RequirePermission(enforcer.ReadComment))
@@ -129,4 +138,50 @@ func (h *Handler) delete(context echo.Context) error {
 		return apperror.HandleError(err, context)
 	}
 	return context.NoContent(http.StatusNoContent)
+}
+
+func (h *Handler) realTime(c echo.Context) error {
+	contributionId, err := strconv.Atoi(c.QueryParam("contributionId"))
+	if err != nil {
+		return apperror.HandleError(
+			apperror.New(apperror.ErrInvalid, "missing contributionId param", err),
+			c,
+		)
+	}
+	c.Response().Header().Add("Content-Type", "text/event-stream")
+	c.Response().Header().Add("Cache-Control", "no-cache")
+	c.Response().Header().Add("Connection", "keep-alive")
+	commentChannel := make(chan CommentRes)
+	errChannel := make(chan error)
+	go func() {
+		er := h.service.StreamingComment(c.Request().Context(), contributionId, commentChannel)
+		if er != nil {
+			errChannel <- er
+		} else {
+			log.Logger.Debug("go routine streaming comment exited")
+		}
+	}()
+	if err != nil {
+		return apperror.HandleError(err, c)
+	}
+loop:
+	for {
+		select {
+		case <-c.Request().Context().Done():
+			break loop
+		case e := <-errChannel:
+			return apperror.HandleError(e, c)
+		case data := <-commentChannel:
+			bytes, err := json.Marshal(data)
+			if err != nil {
+				log.Logger.Error("error encode json", zap.Error(err))
+				break
+			}
+			_, _ = fmt.Fprintf(c.Response(), "data: %s\n\n", string(bytes))
+			c.Response().Flush()
+			log.Logger.Debug("pushed message", zap.Any("message", data))
+		}
+	}
+	log.Logger.Debug("finish event source comment")
+	return nil
 }
