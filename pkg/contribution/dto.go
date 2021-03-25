@@ -98,3 +98,8 @@ func (c ContributionStatusReq) Validate() error {
 		),
 	)
 }
+
+type PaginateComposition struct {
+	common.PaginateResponse
+	Data []ContributionRes `json:"data"`
+}

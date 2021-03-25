@@ -45,7 +45,7 @@ func (h *Handler) Register(group *echo.Group) {
 // @Accept  json
 // @Produce  json
 // @Param params query comment.IndexQuery false "index query"
-// @Success 200 {object} common.PaginateResponse{data=comment.CommentRes}
+// @Success 200 {object} CursorPaginateComposition
 // @Security ApiKeyAuth
 // @Router /comments [get]
 func (h *Handler) index(context echo.Context) error {

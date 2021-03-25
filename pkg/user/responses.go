@@ -13,3 +13,8 @@ type UserResponse struct {
 	Role      enforcer.Role `json:"role"`
 	common.TrackTime
 }
+
+type PaginateComposition struct {
+	common.PaginateResponse
+	Data []UserResponse `json:"data"`
+}

@@ -88,12 +88,23 @@ definitions:
       content:
         type: string
     type: object
-  common.PaginateResponse:
+  comment.CursorPaginateComposition:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/comment.CommentRes'
+        type: array
+      next:
+        type: string
+    type: object
+  contributesession.PaginateComposition:
     properties:
       currentPage:
         type: integer
       data:
-        type: object
+        items:
+          $ref: '#/definitions/contributesession.SessionRes'
+        type: array
       lastPage:
         type: integer
       perPage:
@@ -201,6 +212,21 @@ definitions:
       title:
         type: string
     type: object
+  contribution.PaginateComposition:
+    properties:
+      currentPage:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/contribution.ContributionRes'
+        type: array
+      lastPage:
+        type: integer
+      perPage:
+        type: integer
+      total:
+        type: integer
+    type: object
   contribution.UserRes:
     properties:
       email:
@@ -235,6 +261,21 @@ definitions:
       name:
         type: string
     type: object
+  faculty.PaginateComposition:
+    properties:
+      currentPage:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/faculty.FacultyResponse'
+        type: array
+      lastPage:
+        type: integer
+      perPage:
+        type: integer
+      total:
+        type: integer
+    type: object
   media.UploadResult:
     properties:
       key:
@@ -248,6 +289,21 @@ definitions:
     properties:
       value:
         type: string
+    type: object
+  user.PaginateComposition:
+    properties:
+      currentPage:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/user.UserResponse'
+        type: array
+      lastPage:
+        type: integer
+      perPage:
+        type: integer
+      total:
+        type: integer
     type: object
   user.UserCreateReq:
     properties:
@@ -300,6 +356,7 @@ definitions:
     type: object
 info:
   contact: {}
+  title: "123"
 paths:
   /articles/{id}:
     get:
@@ -368,12 +425,7 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/common.PaginateResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/comment.CommentRes'
-              type: object
+            $ref: '#/definitions/comment.CursorPaginateComposition'
       security:
       - ApiKeyAuth: []
       summary: List comments
@@ -491,12 +543,7 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/common.PaginateResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/contributesession.SessionRes'
-              type: object
+            $ref: '#/definitions/contributesession.PaginateComposition'
       security:
       - ApiKeyAuth: []
       summary: List Contribute Sessions
@@ -651,12 +698,7 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/common.PaginateResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/contribution.ContributionRes'
-              type: object
+            $ref: '#/definitions/contribution.PaginateComposition'
       security:
       - ApiKeyAuth: []
       summary: List contributions
@@ -826,12 +868,7 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/common.PaginateResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/faculty.FacultyResponse'
-              type: object
+            $ref: '#/definitions/faculty.PaginateComposition'
       security:
       - ApiKeyAuth: []
       summary: List faculties
@@ -1031,12 +1068,7 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/common.PaginateResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/user.UserResponse'
-              type: object
+            $ref: '#/definitions/user.PaginateComposition'
       security:
       - ApiKeyAuth: []
       summary: List users

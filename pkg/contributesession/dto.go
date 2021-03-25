@@ -58,3 +58,8 @@ func (s SessionUpdateReq) Validate() error {
 type IndexQuery struct {
 	common.PaginateQuery
 }
+
+type PaginateComposition struct {
+	common.PaginateResponse
+	Data []SessionRes `json:"data"`
+}

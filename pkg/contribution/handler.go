@@ -39,7 +39,7 @@ func (h *Handler) Register(group *echo.Group) {
 // @Accept  json
 // @Produce  json
 // @Param params query contribution.IndexQuery false "index query"
-// @Success 200 {object} common.PaginateResponse{data=contribution.ContributionRes}
+// @Success 200 {object} PaginateComposition
 // @Security ApiKeyAuth
 // @Router /contributions [get]
 func (h *Handler) index(context echo.Context) error {

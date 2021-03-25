@@ -46,3 +46,8 @@ type CursorPayload struct {
 	Id        string
 	CreatedAt time.Time
 }
+
+type CursorPaginateComposition struct {
+	common.CursorResponse
+	Data []CommentRes `json:"data"`
+}

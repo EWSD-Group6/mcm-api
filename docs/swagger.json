@@ -1,6 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
+        "title": "123",
         "contact": {}
     },
     "paths": {
@@ -115,19 +116,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/common.PaginateResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/comment.CommentRes"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/comment.CursorPaginateComposition"
                         }
                     }
                 }
@@ -317,19 +306,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/common.PaginateResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/contributesession.SessionRes"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/contributesession.PaginateComposition"
                         }
                     }
                 }
@@ -578,19 +555,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/common.PaginateResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/contribution.ContributionRes"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/contribution.PaginateComposition"
                         }
                     }
                 }
@@ -863,19 +828,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/common.PaginateResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/faculty.FacultyResponse"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/faculty.PaginateComposition"
                         }
                     }
                 }
@@ -1194,19 +1147,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/common.PaginateResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/user.UserResponse"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/user.PaginateComposition"
                         }
                     }
                 }
@@ -1501,14 +1442,31 @@
                 }
             }
         },
-        "common.PaginateResponse": {
+        "comment.CursorPaginateComposition": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/comment.CommentRes"
+                    }
+                },
+                "next": {
+                    "type": "string"
+                }
+            }
+        },
+        "contributesession.PaginateComposition": {
             "type": "object",
             "properties": {
                 "currentPage": {
                     "type": "integer"
                 },
                 "data": {
-                    "type": "object"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/contributesession.SessionRes"
+                    }
                 },
                 "lastPage": {
                     "type": "integer"
@@ -1676,6 +1634,29 @@
                 }
             }
         },
+        "contribution.PaginateComposition": {
+            "type": "object",
+            "properties": {
+                "currentPage": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/contribution.ContributionRes"
+                    }
+                },
+                "lastPage": {
+                    "type": "integer"
+                },
+                "perPage": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "contribution.UserRes": {
             "type": "object",
             "properties": {
@@ -1729,6 +1710,29 @@
                 }
             }
         },
+        "faculty.PaginateComposition": {
+            "type": "object",
+            "properties": {
+                "currentPage": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/faculty.FacultyResponse"
+                    }
+                },
+                "lastPage": {
+                    "type": "integer"
+                },
+                "perPage": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "media.UploadResult": {
             "type": "object",
             "properties": {
@@ -1748,6 +1752,29 @@
             "properties": {
                 "value": {
                     "type": "string"
+                }
+            }
+        },
+        "user.PaginateComposition": {
+            "type": "object",
+            "properties": {
+                "currentPage": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user.UserResponse"
+                    }
+                },
+                "lastPage": {
+                    "type": "integer"
+                },
+                "perPage": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },

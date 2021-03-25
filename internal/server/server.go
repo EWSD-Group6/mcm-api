@@ -86,6 +86,7 @@ func (s *Server) registerHandler() {
 	s.comment.Register(s.echo.Group("comments"))
 }
 
+// @title 123
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
 // @name Authorization

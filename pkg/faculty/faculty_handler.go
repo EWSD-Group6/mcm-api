@@ -37,7 +37,7 @@ func (h *Handler) Register(group *echo.Group) {
 // @Accept  json
 // @Produce  json
 // @Param params query faculty.IndexQuery false "index query"
-// @Success 200 {object} common.PaginateResponse{data=faculty.FacultyResponse}
+// @Success 200 {object} PaginateComposition
 // @Security ApiKeyAuth
 // @Router /faculties [get]
 func (h *Handler) index(context echo.Context) error {

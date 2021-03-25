@@ -32,3 +32,8 @@ func (f *FacultyUpdateReq) Validate() error {
 	return validation.ValidateStruct(f,
 		validation.Field(&f.Name, validation.Required, validation.Length(6, 100)))
 }
+
+type PaginateComposition struct {
+	common.PaginateResponse
+	Data []FacultyResponse `json:"data"`
+}
