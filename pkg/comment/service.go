@@ -53,7 +53,7 @@ func (s Service) Find(ctx context.Context, query *IndexQuery) (*common.CursorRes
 		return nil, err
 	}
 
-	var res []*CommentRes
+	var res = make([]*CommentRes, 0)
 	for _, v := range entities {
 		res = append(res, mapEntityToRes(v))
 	}

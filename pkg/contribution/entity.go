@@ -1,6 +1,7 @@
 package contribution
 
 import (
+	"mcm-api/pkg/article"
 	"mcm-api/pkg/user"
 	"time"
 )
@@ -19,6 +20,9 @@ type Entity struct {
 	User                user.Entity `gorm:"foreignKey:UserId"`
 	ContributeSessionId int
 	ArticleId           *int
+	Article             *article.Entity `gorm:"foreignKey:ArticleId"`
+	Title               string
+	Description         string
 	Status              Status
 	Images              []ImageEntity `gorm:"foreignKey:ContributionId"`
 	CreatedAt           time.Time

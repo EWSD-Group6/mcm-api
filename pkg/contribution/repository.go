@@ -66,7 +66,7 @@ func (r repository) FindAndCount(ctx context.Context, query *IndexQuery) ([]*Ent
 		return nil, 0, result.Error
 	}
 	builder.Offset(query.GetOffSet()).Limit(query.GetLimit())
-	result = builder.Preload("User").Find(&entities)
+	result = builder.Preload("User").Preload("Article").Find(&entities)
 	return entities, count, result.Error
 }
 

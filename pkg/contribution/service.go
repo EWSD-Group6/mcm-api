@@ -134,9 +134,7 @@ func (s Service) Create(ctx context.Context, body *ContributionCreateReq) (*Cont
 	var a *article.ArticleRes
 	if body.Article != nil {
 		a, err = s.articleService.Create(ctx, &article.ArticleReq{
-			Title:       body.Article.Title,
-			Description: body.Article.Description,
-			Link:        body.Article.Link,
+			Link: body.Article.Link,
 		})
 		if err != nil {
 			return nil, err
@@ -145,6 +143,8 @@ func (s Service) Create(ctx context.Context, body *ContributionCreateReq) (*Cont
 	entity := &Entity{
 		UserId:              loggedInUser.Id,
 		ContributeSessionId: session.Id,
+		Title:               body.Title,
+		Description:         body.Description,
 		Status:              Reviewing,
 		Images:              mapImageReqToEntity(body.Images...),
 	}
@@ -191,9 +191,7 @@ func (s Service) Update(ctx context.Context, id int, body *ContributionUpdateReq
 	}
 	if body.Article != nil {
 		_, err = s.articleService.Update(ctx, *entity.ArticleId, article.ArticleReq{
-			Title:       body.Article.Title,
-			Description: body.Article.Description,
-			Link:        body.Article.Link,
+			Link: body.Article.Link,
 		})
 		if err != nil {
 			return nil, err
@@ -201,10 +199,12 @@ func (s Service) Update(ctx context.Context, id int, body *ContributionUpdateReq
 	}
 	if body.Images != nil {
 		entity.Images = mapImageReqToEntity(body.Images...)
-		_, err = s.repository.Update(ctx, entity)
-		if err != nil {
-			return nil, err
-		}
+	}
+	entity.Title = body.Title
+	entity.Description = body.Description
+	_, err = s.repository.Update(ctx, entity)
+	if err != nil {
+		return nil, err
 	}
 	return mapContributionToRes(entity), nil
 }
@@ -297,6 +297,8 @@ func mapContributionToRes(c *Entity) *ContributionRes {
 		},
 		ContributeSessionId: c.ContributeSessionId,
 		ArticleId:           c.ArticleId,
+		Title:               c.Title,
+		Description:         c.Description,
 		Status:              c.Status,
 		TrackTime: common.TrackTime{
 			CreatedAt: c.CreatedAt,

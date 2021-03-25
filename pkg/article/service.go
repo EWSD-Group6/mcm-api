@@ -64,8 +64,6 @@ func (s Service) Create(ctx context.Context, req *ArticleReq) (*ArticleRes, erro
 	}
 	fileHash := hash(fileContent)
 	entity, err := s.repository.Create(ctx, &Entity{
-		Title:       req.Title,
-		Description: req.Description,
 		Versions: []*Version{
 			{
 				Hash:         fileHash,
@@ -111,8 +109,6 @@ func (s Service) Update(ctx context.Context, articleId int, req ArticleReq) (*Ar
 		}
 		return nil, err
 	}
-	entity.Title = req.Title
-	entity.Description = req.Description
 	entity, err = s.repository.Update(ctx, entity)
 	if err != nil {
 		return nil, err
@@ -174,10 +170,8 @@ func hash(input []byte) string {
 
 func (s Service) mapArticleToRes(a *Entity) *ArticleRes {
 	return &ArticleRes{
-		Id:          a.Id,
-		Title:       a.Title,
-		Description: a.Description,
-		Versions:    s.mapVersionsToRes(a.Versions...),
+		Id:       a.Id,
+		Versions: s.mapVersionsToRes(a.Versions...),
 		TrackTime: common.TrackTime{
 			CreatedAt: a.CreatedAt,
 			UpdatedAt: a.UpdatedAt,

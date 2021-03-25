@@ -19,6 +19,8 @@ type ContributionRes struct {
 	User                UserRes `json:"user"`
 	ContributeSessionId int     `json:"contributeSessionId"`
 	ArticleId           *int    `json:"articleId"`
+	Title               string  `json:"title"`
+	Description         string  `json:"description"`
 	Status              Status  `json:"status"`
 	common.TrackTime
 }
@@ -38,27 +40,28 @@ type ImageRes struct {
 }
 
 type ArticleReq struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Link        string `json:"link"`
+	Link string `json:"link"`
 }
 
 func (r *ArticleReq) Validate() error {
 	return validation.ValidateStruct(r,
-		validation.Field(&r.Title, validation.Required, validation.Length(10, 255)),
-		validation.Field(&r.Description, validation.Length(15, 512)),
 		validation.Field(&r.Link, validation.Required, validation.Length(10, 255)),
 	)
 }
 
 type ContributionCreateReq struct {
-	Article *ArticleReq      `json:"article"`
-	Images  []ImageCreateReq `json:"images"`
+	Article     *ArticleReq      `json:"article"`
+	Images      []ImageCreateReq `json:"images"`
+	Title       string           `json:"title"`
+	Description string           `json:"description"`
 }
 
 func (r *ContributionCreateReq) Validate() error {
 	return validation.ValidateStruct(r,
-		validation.Field(&r.Article, validation.Required),
+		validation.Field(&r.Article, validation.Required.When(r.Images == nil)),
+		validation.Field(&r.Images, validation.Required.When(r.Article == nil)),
+		validation.Field(&r.Title, validation.Required, validation.Length(10, 255)),
+		validation.Field(&r.Description, validation.Length(15, 512)),
 	)
 }
 
@@ -75,14 +78,18 @@ func (c ImageCreateReq) Validate() error {
 }
 
 type ContributionUpdateReq struct {
-	Article *ArticleReq      `json:"article"`
-	Images  []ImageCreateReq `json:"images"`
+	Article     *ArticleReq      `json:"article"`
+	Images      []ImageCreateReq `json:"images"`
+	Title       string           `json:"title"`
+	Description string           `json:"description"`
 }
 
 func (r *ContributionUpdateReq) Validate() error {
 	return validation.ValidateStruct(r,
 		validation.Field(&r.Article, validation.Required.When(r.Images == nil)),
 		validation.Field(&r.Images, validation.Required.When(r.Article == nil)),
+		validation.Field(&r.Title, validation.Required, validation.Length(10, 255)),
+		validation.Field(&r.Description, validation.Length(15, 512)),
 	)
 }
 

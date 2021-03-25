@@ -1329,14 +1329,8 @@ var doc = `{
                 "createdAt": {
                     "type": "string"
                 },
-                "description": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
-                },
-                "title": {
-                    "type": "string"
                 },
                 "updatedAt": {
                     "type": "string"
@@ -1554,13 +1548,7 @@ var doc = `{
         "contribution.ArticleReq": {
             "type": "object",
             "properties": {
-                "description": {
-                    "type": "string"
-                },
                 "link": {
-                    "type": "string"
-                },
-                "title": {
                     "type": "string"
                 }
             }
@@ -1571,11 +1559,17 @@ var doc = `{
                 "article": {
                     "$ref": "#/definitions/contribution.ArticleReq"
                 },
+                "description": {
+                    "type": "string"
+                },
                 "images": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/contribution.ImageCreateReq"
                     }
+                },
+                "title": {
+                    "type": "string"
                 }
             }
         },
@@ -1591,10 +1585,16 @@ var doc = `{
                 "createdAt": {
                     "type": "string"
                 },
+                "description": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
                 "status": {
+                    "type": "string"
+                },
+                "title": {
                     "type": "string"
                 },
                 "updatedAt": {
@@ -1619,11 +1619,17 @@ var doc = `{
                 "article": {
                     "$ref": "#/definitions/contribution.ArticleReq"
                 },
+                "description": {
+                    "type": "string"
+                },
                 "images": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/contribution.ImageCreateReq"
                     }
+                },
+                "title": {
+                    "type": "string"
                 }
             }
         },

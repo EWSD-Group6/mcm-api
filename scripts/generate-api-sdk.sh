@@ -2,4 +2,7 @@
 docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli generate \
     -i /local/docs/swagger.json \
     -g typescript-angular \
-    -o /local/api-module
+    -o /local/api-module \
+    --additional-properties=serviceSuffix=ApiService \
+    --additional-properties=fileNaming=kebab-case
+

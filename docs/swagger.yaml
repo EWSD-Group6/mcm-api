@@ -3,12 +3,8 @@ definitions:
     properties:
       createdAt:
         type: string
-      description:
-        type: string
       id:
         type: integer
-      title:
-        type: string
       updatedAt:
         type: string
       versions:
@@ -149,21 +145,21 @@ definitions:
     type: object
   contribution.ArticleReq:
     properties:
-      description:
-        type: string
       link:
-        type: string
-      title:
         type: string
     type: object
   contribution.ContributionCreateReq:
     properties:
       article:
         $ref: '#/definitions/contribution.ArticleReq'
+      description:
+        type: string
       images:
         items:
           $ref: '#/definitions/contribution.ImageCreateReq'
         type: array
+      title:
+        type: string
     type: object
   contribution.ContributionRes:
     properties:
@@ -173,9 +169,13 @@ definitions:
         type: integer
       createdAt:
         type: string
+      description:
+        type: string
       id:
         type: integer
       status:
+        type: string
+      title:
         type: string
       updatedAt:
         type: string
@@ -191,10 +191,14 @@ definitions:
     properties:
       article:
         $ref: '#/definitions/contribution.ArticleReq'
+      description:
+        type: string
       images:
         items:
           $ref: '#/definitions/contribution.ImageCreateReq'
         type: array
+      title:
+        type: string
     type: object
   contribution.ImageCreateReq:
     properties:

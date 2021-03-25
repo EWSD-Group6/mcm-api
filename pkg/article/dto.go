@@ -6,10 +6,8 @@ import (
 )
 
 type ArticleRes struct {
-	Id          int           `json:"id"`
-	Title       string        `json:"title"`
-	Description string        `json:"description"`
-	Versions    []*VersionRes `json:"versions"`
+	Id       int           `json:"id"`
+	Versions []*VersionRes `json:"versions"`
 	common.TrackTime
 }
 
@@ -25,7 +23,5 @@ type VersionRes struct {
 }
 
 type ArticleReq struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Link        string `json:"link"`
+	Link string `json:"link"`
 }
