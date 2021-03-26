@@ -13,7 +13,7 @@ const (
 )
 
 type UploadResult struct {
-	Key string
+	Key string `json:"key"`
 }
 
 type FileUploadOriginalReq struct {
