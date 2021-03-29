@@ -44,6 +44,10 @@ func (r repository) Delete(ctx context.Context, id int) error {
 	return r.db.WithContext(ctx).Delete(&Entity{}, id).Error
 }
 
+func (r repository) DeleteImages(ctx context.Context, contributionId int) error {
+	return r.db.WithContext(ctx).Where("contribution_id = ?", contributionId).Delete(&ImageEntity{}).Error
+}
+
 func (r repository) FindAndCount(ctx context.Context, query *IndexQuery) ([]*Entity, int64, error) {
 	var entities []*Entity
 	builder := r.db.WithContext(ctx).Model(&Entity{})

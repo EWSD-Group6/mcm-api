@@ -63,13 +63,18 @@ type PaginateResponse struct {
 }
 
 func NewPaginateResponse(data interface{}, total int64, page int, limit int) *PaginateResponse {
-	return &PaginateResponse{
+	r := &PaginateResponse{
 		Total:       total,
 		CurrentPage: page,
 		LastPage:    calculateLastPage(total, limit),
 		PerPage:     limit,
-		Data:        data,
 	}
+	if !isNil(data) {
+		r.Data = data
+	} else {
+		r.Data = make([]interface{}, 0)
+	}
+	return r
 }
 
 func calculateLastPage(total int64, limit int) int {

@@ -3,6 +3,7 @@ package contribution
 import (
 	"context"
 	"errors"
+	"fmt"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"mcm-api/config"
@@ -179,6 +180,7 @@ func (s Service) addToQueue(user enforcer.LoggedInUser, contribution *Entity) {
 
 func (s Service) Update(ctx context.Context, id int, body *ContributionUpdateReq) (*ContributionRes, error) {
 	entity, err := s.findById(ctx, id)
+	fmt.Println(entity)
 	if err != nil {
 		return nil, err
 	}
@@ -198,6 +200,10 @@ func (s Service) Update(ctx context.Context, id int, body *ContributionUpdateReq
 		}
 	}
 	if body.Images != nil {
+		err = s.repository.DeleteImages(ctx, entity.Id)
+		if err != nil {
+			return nil, err
+		}
 		entity.Images = mapImageReqToEntity(body.Images...)
 	}
 	entity.Title = body.Title
@@ -223,6 +229,10 @@ func (s Service) Delete(ctx context.Context, id int) error {
 	}
 	if time.Now().After(session.ClosureTime) {
 		return apperror.New(apperror.ErrForbidden, "contribution session ended", nil)
+	}
+	err = s.repository.DeleteImages(ctx, id)
+	if err != nil {
+		return err
 	}
 	err = s.repository.Delete(ctx, id)
 	if err != nil {
@@ -266,7 +276,9 @@ func (s Service) UpdateStatus(ctx context.Context, id int, body *ContributionSta
 		}
 		return err
 	}
-	if loggedInUser.FacultyId != entity.User.FacultyId {
+	fmt.Println(loggedInUser)
+	fmt.Println(entity.User)
+	if *loggedInUser.FacultyId != *entity.User.FacultyId {
 		return apperror.New(apperror.ErrForbidden, "cant not change status of other faculty", nil)
 	}
 	entity.Status = body.Status

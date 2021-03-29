@@ -109,7 +109,7 @@ func canCommentOnContribution(user *enforcer.LoggedInUser, contrib *contribution
 			"you are not owner of this contribution", nil)
 	}
 	if user.Role == enforcer.MarketingCoordinator &&
-		contrib.User.FacultyId != user.FacultyId {
+		*contrib.User.FacultyId != *user.FacultyId {
 		return apperror.New(
 			apperror.ErrForbidden,
 			"you are not in same faculty with contribution", nil)
