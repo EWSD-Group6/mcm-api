@@ -1497,7 +1497,7 @@ var doc = `{
                 "closureTime": {
                     "type": "string"
                 },
-                "finalClosureTIme": {
+                "finalClosureTime": {
                     "type": "string"
                 },
                 "openTime": {
@@ -1517,7 +1517,7 @@ var doc = `{
                 "exportedAssets": {
                     "type": "string"
                 },
-                "finalClosureTIme": {
+                "finalClosureTime": {
                     "type": "string"
                 },
                 "id": {

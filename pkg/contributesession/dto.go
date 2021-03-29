@@ -10,7 +10,7 @@ type SessionRes struct {
 	Id               int       `json:"id"`
 	OpenTime         time.Time `json:"openTime"`
 	ClosureTime      time.Time `json:"closureTime"`
-	FinalClosureTime time.Time `json:"finalClosureTIme"`
+	FinalClosureTime time.Time `json:"finalClosureTime"`
 	ExportedAssets   string    `json:"exportedAssets"`
 	common.TrackTime
 }
@@ -18,7 +18,7 @@ type SessionRes struct {
 type SessionCreateReq struct {
 	OpenTime         time.Time `json:"openTime"`
 	ClosureTime      time.Time `json:"closureTime"`
-	FinalClosureTime time.Time `json:"finalClosureTIme"`
+	FinalClosureTime time.Time `json:"finalClosureTime"`
 }
 
 func (s SessionCreateReq) Validate() error {

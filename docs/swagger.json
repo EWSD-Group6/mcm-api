@@ -1479,8 +1479,8 @@
                 "closureTime": {
                     "type": "string"
                 },
-                "finalClosureTIme": {
-                    "type": "string"
+                "finalClosureTime": {
+                  "type": "string"
                 },
                 "openTime": {
                     "type": "string"
@@ -1499,9 +1499,9 @@
                 "exportedAssets": {
                     "type": "string"
                 },
-                "finalClosureTIme": {
-                    "type": "string"
-                },
+              "finalClosureTime": {
+                "type": "string"
+              },
                 "id": {
                     "type": "integer"
                 },

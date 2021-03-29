@@ -112,7 +112,7 @@ definitions:
     properties:
       closureTime:
         type: string
-      finalClosureTIme:
+      finalClosureTime:
         type: string
       openTime:
         type: string
@@ -125,7 +125,7 @@ definitions:
         type: string
       exportedAssets:
         type: string
-      finalClosureTIme:
+      finalClosureTime:
         type: string
       id:
         type: integer
