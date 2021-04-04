@@ -70,9 +70,10 @@ func (s *Service) CreateUser(ctx context.Context, req *UserCreateReq) (*UserResp
 		return nil, apperror.New(apperror.ErrConflict, "duplicate email", err)
 	}
 	entity = &Entity{
-		Name:  req.Name,
-		Email: req.Email,
-		Role:  req.Role,
+		Name:   req.Name,
+		Email:  req.Email,
+		Role:   req.Role,
+		Status: req.Status,
 	}
 
 	// validate and set faculty
@@ -168,11 +169,47 @@ func (s *Service) Update(ctx context.Context, id int, req *UserUpdateReq) (*User
 		entity.FacultyId = req.FacultyId
 	}
 
+	if req.Status != nil {
+		entity.Status = *req.Status
+	}
+
 	entity, err = s.repository.Update(ctx, entity)
 	if err != nil {
 		return nil, err
 	}
 	return mapEntityToResponse(entity), nil
+}
+
+func (s *Service) DeleteUser(ctx context.Context, id int) error {
+	entity, err := s.repository.FindById(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperror.New(apperror.ErrNotFound, "user not found", err)
+		}
+		return err
+	}
+	err = s.repository.Delete(ctx, entity.Id)
+	if err != nil {
+		return apperror.New(apperror.ErrConflict, "failed to delete user, please try disabling it instead", err)
+	}
+	return nil
+}
+
+func (s Service) ChangeStatus(ctx context.Context, id int, req *UserUpdateStatus) error {
+	entity, err := s.repository.FindById(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperror.New(apperror.ErrNotFound, "user not found", err)
+		}
+		return err
+	}
+	err = req.Validate()
+	if err != nil {
+		return err
+	}
+	entity.Status = req.Status
+	_, err = s.repository.Update(ctx, entity)
+	return err
 }
 
 func mapEntitiesToResponse(entity []*Entity) []*UserResponse {
@@ -188,6 +225,7 @@ func mapEntityToResponse(entity *Entity) *UserResponse {
 		Id:        entity.Id,
 		Name:      entity.Name,
 		Role:      entity.Role,
+		Status:    entity.Status,
 		Email:     entity.Email,
 		FacultyId: entity.FacultyId,
 		TrackTime: common.TrackTime{

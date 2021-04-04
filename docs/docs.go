@@ -1320,6 +1320,40 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/users/{id}/status": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update user status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1405,6 +1439,9 @@ var doc = `{
                     "type": "string"
                 },
                 "role": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 },
                 "updatedAt": {
@@ -1826,6 +1863,9 @@ var doc = `{
                         "student",
                         "guest"
                     ]
+                },
+                "status": {
+                    "type": "string"
                 }
             }
         },
@@ -1850,6 +1890,9 @@ var doc = `{
                 "role": {
                     "type": "string"
                 },
+                "status": {
+                    "type": "string"
+                },
                 "updatedAt": {
                     "type": "string"
                 }
@@ -1871,6 +1914,9 @@ var doc = `{
                     "type": "string"
                 },
                 "role": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }

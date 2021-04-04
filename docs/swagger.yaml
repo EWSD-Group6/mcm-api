@@ -54,6 +54,8 @@ definitions:
         type: string
       role:
         type: string
+      status:
+        type: string
       updatedAt:
         type: string
     type: object
@@ -321,11 +323,13 @@ definitions:
         type: string
       role:
         enum:
-        - admin
-        - marketing_manager
-        - marketing_coordinator
-        - student
-        - guest
+          - admin
+          - marketing_manager
+          - marketing_coordinator
+          - student
+          - guest
+        type: string
+      status:
         type: string
     type: object
   user.UserResponse:
@@ -342,6 +346,8 @@ definitions:
         type: string
       role:
         type: string
+      status:
+        type: string
       updatedAt:
         type: string
     type: object
@@ -356,6 +362,8 @@ definitions:
       password:
         type: string
       role:
+        type: string
+      status:
         type: string
     type: object
 info:
@@ -1168,10 +1176,31 @@ paths:
           schema:
             $ref: '#/definitions/user.UserResponse'
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: [ ]
       summary: Update a user
       tags:
-      - Users
+        - Users
+  /users/{id}/status:
+    post:
+      consumes:
+        - application/json
+      description: Update user status
+      parameters:
+        - description: User ID
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+        - ApiKeyAuth: [ ]
+      summary: Update user status
+      tags:
+        - Users
 securityDefinitions:
   ApiKeyAuth:
     in: header

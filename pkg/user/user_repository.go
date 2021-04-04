@@ -57,3 +57,7 @@ func (r *repository) Update(ctx context.Context, entity *Entity) (*Entity, error
 	db := r.db.WithContext(ctx).Save(entity)
 	return entity, db.Error
 }
+
+func (r *repository) Delete(ctx context.Context, id int) error {
+	return r.db.WithContext(ctx).Delete(&Entity{}, id).Error
+}

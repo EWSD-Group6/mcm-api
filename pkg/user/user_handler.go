@@ -27,6 +27,7 @@ func (h *Handler) Register(group *echo.Group) {
 	group.GET("", h.index, middleware.RequirePermission(enforcer.ReadUser))
 	group.GET("/:id", h.getById, middleware.RequirePermission(enforcer.ReadUser))
 	group.POST("", h.createUser, middleware.RequirePermission(enforcer.CreateUser))
+	group.POST("/:id/status", h.updateStatus, middleware.RequirePermission(enforcer.UpdateUser))
 	group.PATCH("/:id", h.updateUser, middleware.RequirePermission(enforcer.UpdateUser))
 	group.DELETE("/:id", h.deleteUser, middleware.RequirePermission(enforcer.DeleteUser))
 }
@@ -141,5 +142,43 @@ func (h Handler) updateUser(ctx echo.Context) error {
 // @Security ApiKeyAuth
 // @Router /users/{id} [delete]
 func (h Handler) deleteUser(ctx echo.Context) error {
-	return nil
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		return apperror.
+			New(apperror.ErrInvalid, "Id should be string", err).
+			ToResponse(ctx)
+	}
+	err = h.service.DeleteUser(ctx.Request().Context(), id)
+	if err != nil {
+		return apperror.HandleError(err, ctx)
+	}
+	return ctx.NoContent(http.StatusOK)
+}
+
+// @Tags Users
+// @Summary Update user status
+// @Description Update user status
+// @Accept  json
+// @Produce  json
+// @Param id path int true "User ID"
+// @Success 200
+// @Security ApiKeyAuth
+// @Router /users/{id}/status [post]
+func (h Handler) updateStatus(ctx echo.Context) error {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		return apperror.
+			New(apperror.ErrInvalid, "Id should be string", err).
+			ToResponse(ctx)
+	}
+	req := &UserUpdateStatus{}
+	err = ctx.Bind(req)
+	if err != nil {
+		return err
+	}
+	err = h.service.ChangeStatus(ctx.Request().Context(), id, req)
+	if err != nil {
+		return apperror.HandleError(err, ctx)
+	}
+	return ctx.NoContent(http.StatusOK)
 }

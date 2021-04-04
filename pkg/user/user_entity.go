@@ -5,6 +5,13 @@ import (
 	"time"
 )
 
+type UserStatus string
+
+const (
+	UserActive  UserStatus = "active"
+	UserDisable UserStatus = "disable"
+)
+
 type Entity struct {
 	Id        int
 	Name      string
@@ -12,6 +19,7 @@ type Entity struct {
 	Password  string
 	FacultyId *int
 	Role      enforcer.Role
+	Status    UserStatus
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

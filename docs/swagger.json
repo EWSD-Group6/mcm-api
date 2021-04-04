@@ -1302,6 +1302,40 @@
                     }
                 }
             }
+        },
+        "/users/{id}/status": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update user status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1387,6 +1421,9 @@
                     "type": "string"
                 },
                 "role": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 },
                 "updatedAt": {
@@ -1480,7 +1517,7 @@
                     "type": "string"
                 },
                 "finalClosureTime": {
-                  "type": "string"
+                    "type": "string"
                 },
                 "openTime": {
                     "type": "string"
@@ -1499,9 +1536,9 @@
                 "exportedAssets": {
                     "type": "string"
                 },
-              "finalClosureTime": {
-                "type": "string"
-              },
+                "finalClosureTime": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -1808,6 +1845,9 @@
                         "student",
                         "guest"
                     ]
+                },
+                "status": {
+                    "type": "string"
                 }
             }
         },
@@ -1832,6 +1872,9 @@
                 "role": {
                     "type": "string"
                 },
+                "status": {
+                    "type": "string"
+                },
                 "updatedAt": {
                     "type": "string"
                 }
@@ -1853,6 +1896,9 @@
                     "type": "string"
                 },
                 "role": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }

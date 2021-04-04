@@ -35,6 +35,10 @@ func (s Service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse, 
 		return nil, apperror.New(apperror.ErrUnauthorized, "Wrong username or password", err)
 	}
 
+	if userResponse.Status == user.UserDisable {
+		return nil, apperror.New(apperror.ErrForbidden, "Your account is disabled", nil)
+	}
+
 	// Create token
 	token := jwt.New(jwt.SigningMethodHS256)
 

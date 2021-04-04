@@ -11,6 +11,7 @@ type UserResponse struct {
 	Email     string        `json:"email"`
 	FacultyId *int          `json:"facultyId"`
 	Role      enforcer.Role `json:"role"`
+	Status    UserStatus    `json:"status"`
 	common.TrackTime
 }
 
