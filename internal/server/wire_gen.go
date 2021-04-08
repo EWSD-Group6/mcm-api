@@ -16,6 +16,8 @@ import (
 	"mcm-api/pkg/media"
 	"mcm-api/pkg/queue"
 	"mcm-api/pkg/startup"
+	"mcm-api/pkg/statistic"
+	"mcm-api/pkg/systemdata"
 	"mcm-api/pkg/user"
 )
 
@@ -50,6 +52,12 @@ func InitializeServer() *Server {
 	commentRepository := comment.InitializeRepository(db)
 	commentService := comment.InitializeService(config, commentRepository, client, contributionService)
 	commentHandler := comment.NewHandler(config, commentService)
-	server := newServer(config, startupService, handler, userHandler, facultyHandler, mediaHandler, contributesessionHandler, contributionHandler, articleHandler, commentHandler)
+	systemdataRepository := systemdata.InitializeRepository(db)
+	systemdataService := systemdata.InitializeService(config, systemdataRepository)
+	systemdataHandler := systemdata.NewHandler(config, systemdataService)
+	statisticRepository := statistic.InitializeRepository(db)
+	statisticService := statistic.InitializeService(statisticRepository, contributesessionService)
+	statisticHandler := statistic.NewHandler(config, statisticService)
+	server := newServer(config, startupService, handler, userHandler, facultyHandler, mediaHandler, contributesessionHandler, contributionHandler, articleHandler, commentHandler, systemdataHandler, statisticHandler)
 	return server
 }

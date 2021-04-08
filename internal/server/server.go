@@ -17,6 +17,8 @@ import (
 	"mcm-api/pkg/log"
 	"mcm-api/pkg/media"
 	"mcm-api/pkg/startup"
+	"mcm-api/pkg/statistic"
+	"mcm-api/pkg/systemdata"
 	"mcm-api/pkg/user"
 	"os"
 	"os/signal"
@@ -35,6 +37,8 @@ type Server struct {
 	contribution      *contribution.Handler
 	article           *article.Handler
 	comment           *comment.Handler
+	systemdata        *systemdata.Handler
+	statistic         *statistic.Handler
 }
 
 func newServer(
@@ -48,6 +52,8 @@ func newServer(
 	contribution *contribution.Handler,
 	article *article.Handler,
 	comment *comment.Handler,
+	systemdata *systemdata.Handler,
+	statistic *statistic.Handler,
 ) *Server {
 	e := echo.New()
 	e.HideBanner = true
@@ -72,6 +78,8 @@ func newServer(
 		contribution:      contribution,
 		article:           article,
 		comment:           comment,
+		systemdata:        systemdata,
+		statistic:         statistic,
 	}
 }
 
@@ -84,6 +92,8 @@ func (s *Server) registerHandler() {
 	s.contribution.Register(s.echo.Group("contributions"))
 	s.article.Register(s.echo.Group("articles"))
 	s.comment.Register(s.echo.Group("comments"))
+	s.systemdata.Register(s.echo.Group("system-data"))
+	s.statistic.Register(s.echo.Group("statistics"))
 }
 
 // @title 123

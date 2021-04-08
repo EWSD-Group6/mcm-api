@@ -17,7 +17,7 @@ type UserCreateReq struct {
 	Email     string        `json:"email"`
 	Password  string        `json:"password"`
 	Role      enforcer.Role `json:"role" enums:"admin,marketing_manager,marketing_coordinator,student,guest"`
-	Status    UserStatus    `json:"status" enum:"active,disable"`
+	Status    UserStatus    `json:"status" enums:"active,disable"`
 	FacultyId *int          `json:"facultyId"`
 }
 
@@ -38,7 +38,7 @@ type UserUpdateReq struct {
 	Email     *string        `json:"email"`
 	Password  *string        `json:"password"`
 	Role      *enforcer.Role `json:"role"`
-	Status    *UserStatus    `json:"status" enum:"active,disable"`
+	Status    *UserStatus    `json:"status" enums:"active,disable"`
 	FacultyId *int           `json:"facultyId"`
 }
 

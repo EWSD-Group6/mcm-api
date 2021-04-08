@@ -287,9 +287,88 @@ definitions:
       key:
         type: string
     type: object
+  statistic.AdminDashboard:
+    properties:
+      activeUserCount:
+        type: integer
+      disableUserCount:
+        type: integer
+      guestCount:
+        type: integer
+      marketingCoordinatorCount:
+        type: integer
+      marketingManagerCount:
+        type: integer
+      studentCount:
+        type: integer
+      totalContributeSession:
+        type: integer
+      totalContribution:
+        type: integer
+    type: object
+  statistic.ContributionFacultyChart:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/statistic.FacultyContributionData'
+        type: array
+      session:
+        $ref: '#/definitions/statistic.Session'
+    type: object
+  statistic.ContributionStudentChart:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/statistic.ContributionStudentData'
+        type: array
+      session:
+        $ref: '#/definitions/statistic.Session'
+    type: object
+  statistic.ContributionStudentData:
+    properties:
+      count:
+        type: integer
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  statistic.FacultyContributionData:
+    properties:
+      count:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  statistic.Session:
+    properties:
+      closureTime:
+        type: string
+      finalClosureTime:
+        type: string
+      id:
+        type: integer
+      openTime:
+        type: string
+    type: object
   systemdata.DataRes:
-    additionalProperties:
-      type: string
+    properties:
+      key:
+        type: string
+      type:
+        enum:
+          - document
+          - int
+          - string
+        type: string
+      updatedAt:
+        type: string
+      value:
+        type: string
     type: object
   systemdata.DataUpdateReq:
     properties:
@@ -330,6 +409,9 @@ definitions:
           - guest
         type: string
       status:
+        enum:
+          - active
+          - disable
         type: string
     type: object
   user.UserResponse:
@@ -364,6 +446,9 @@ definitions:
       role:
         type: string
       status:
+        enum:
+          - active
+          - disable
         type: string
     type: object
 info:
@@ -667,23 +752,40 @@ paths:
         required: true
         type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: ""
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: [ ]
       summary: Export a Contribute Session
       tags:
-      - Contribute Sessions
+        - Contribute Sessions
+  /contribute-sessions/current:
+    get:
+      consumes:
+        - application/json
+      description: Get Current Contribute Session
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/contributesession.SessionRes'
+      security:
+        - ApiKeyAuth: [ ]
+      summary: Get Current Contribute Session
+      tags:
+        - Contribute Sessions
   /contributions:
     get:
       consumes:
-      - application/json
+        - application/json
       description: List contributions
       parameters:
-      - in: query
-        name: contributionSessionId
+        - in: query
+          name: contributionSessionId
         type: integer
       - in: query
         name: facultyId
@@ -976,20 +1078,87 @@ paths:
           schema:
             $ref: '#/definitions/faculty.FacultyResponse'
       security:
-      - ApiKeyAuth: []
+        - ApiKeyAuth: [ ]
       summary: Update a faculty
       tags:
-      - Faculties
+        - Faculties
+  /statistics/admin-dashboard:
+    get:
+      consumes:
+        - application/json
+      description: Admin Dashboard Data
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/statistic.AdminDashboard'
+      security:
+        - ApiKeyAuth: [ ]
+      summary: Admin Dashboard Data
+      tags:
+        - Statistics
+  /statistics/contribution-faculty-chart:
+    get:
+      consumes:
+        - application/json
+      description: Contribution group by faculty data
+      parameters:
+        - enum:
+            - accepted
+            - reviewing
+            - rejected
+          in: query
+          name: status
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/statistic.ContributionFacultyChart'
+      security:
+        - ApiKeyAuth: [ ]
+      summary: Contribution group by faculty data
+      tags:
+        - Statistics
+  /statistics/contribution-student-chart:
+    get:
+      consumes:
+        - application/json
+      description: Contribution group by student data
+      parameters:
+        - enum:
+            - accepted
+            - reviewing
+            - rejected
+          in: query
+          name: status
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/statistic.ContributionStudentChart'
+      security:
+        - ApiKeyAuth: [ ]
+      summary: Contribution group by student data
+      tags:
+        - Statistics
   /storage/upload:
     post:
       consumes:
-      - multipart/form-data
+        - multipart/form-data
       description: Upload file
       parameters:
-      - enum:
-        - document
-        - image
-        in: query
+        - enum:
+            - document
+            - image
+          in: query
         name: type
         type: string
       - description: upload file
@@ -1020,7 +1189,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/systemdata.DataRes'
+            items:
+              $ref: '#/definitions/systemdata.DataRes'
+            type: array
       security:
       - ApiKeyAuth: []
       summary: Get System Data

@@ -24,7 +24,7 @@ func NewHandler(config *config.Config, service *Service) *Handler {
 func (h *Handler) Register(group *echo.Group) {
 	group.Use(middleware.RequireAuthentication(h.config.JwtSecret))
 	group.GET("", h.index, middleware.RequirePermission(enforcer.ReadSystemData))
-	group.PUT(":id", h.update, middleware.RequirePermission(enforcer.UpdateSystemData))
+	group.PUT("/:id", h.update, middleware.RequirePermission(enforcer.UpdateSystemData))
 }
 
 // @Tags System Data
@@ -32,15 +32,15 @@ func (h *Handler) Register(group *echo.Group) {
 // @Description Get System Data
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} systemdata.DataRes
+// @Success 200 {array} systemdata.DataRes
 // @Security ApiKeyAuth
 // @Router /system-data [get]
 func (h *Handler) index(context echo.Context) error {
-	paginateResponse, err := h.service.Find(context.Request().Context())
+	res, err := h.service.Find(context.Request().Context())
 	if err != nil {
 		return apperror.HandleError(err, context)
 	}
-	return context.JSON(http.StatusOK, paginateResponse)
+	return context.JSON(http.StatusOK, res)
 }
 
 // @Tags System Data

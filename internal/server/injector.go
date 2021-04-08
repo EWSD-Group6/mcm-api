@@ -13,6 +13,8 @@ import (
 	"mcm-api/pkg/faculty"
 	"mcm-api/pkg/media"
 	"mcm-api/pkg/startup"
+	"mcm-api/pkg/statistic"
+	"mcm-api/pkg/systemdata"
 	"mcm-api/pkg/user"
 )
 
@@ -28,6 +30,8 @@ func InitializeServer() *Server {
 		contribution.Set,
 		article.Set,
 		comment.Set,
+		systemdata.Set,
+		statistic.Set,
 		core.HandlerSet,
 		newServer,
 	))

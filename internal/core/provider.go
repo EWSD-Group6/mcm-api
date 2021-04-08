@@ -21,6 +21,8 @@ import (
 	"mcm-api/pkg/log"
 	"mcm-api/pkg/media"
 	"mcm-api/pkg/queue"
+	"mcm-api/pkg/statistic"
+	"mcm-api/pkg/systemdata"
 	"mcm-api/pkg/user"
 )
 
@@ -72,4 +74,6 @@ var HandlerSet = wire.NewSet(
 	contribution.NewHandler,
 	article.NewHandler,
 	comment.NewHandler,
+	systemdata.NewHandler,
+	statistic.NewHandler,
 )

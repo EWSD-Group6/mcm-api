@@ -25,6 +25,7 @@ func NewHandler(config *config.Config, service *Service) *Handler {
 func (h *Handler) Register(group *echo.Group) {
 	group.Use(middleware.RequireAuthentication(h.config.JwtSecret))
 	group.GET("", h.index, middleware.RequirePermission(enforcer.ReadContributeSession))
+	group.GET("/current", h.getCurrentSession, middleware.RequirePermission(enforcer.ReadContributeSession))
 	group.GET("/:id", h.getById, middleware.RequirePermission(enforcer.ReadContributeSession))
 	group.POST("", h.create, middleware.RequirePermission(enforcer.CreateContributeSession))
 	group.POST("/:id/export", h.export, middleware.RequirePermission(enforcer.ExportContributeSession))
@@ -164,4 +165,20 @@ func (h *Handler) export(context echo.Context) error {
 		return apperror.HandleError(err, context)
 	}
 	return context.NoContent(http.StatusOK)
+}
+
+// @Tags Contribute Sessions
+// @Summary Get Current Contribute Session
+// @Description Get Current Contribute Session
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} contributesession.SessionRes
+// @Security ApiKeyAuth
+// @Router /contribute-sessions/current [get]
+func (h *Handler) getCurrentSession(context echo.Context) error {
+	result, err := h.service.GetCurrentSession(context.Request().Context())
+	if err != nil {
+		return apperror.HandleError(err, context)
+	}
+	return context.JSON(http.StatusOK, result)
 }
