@@ -61,6 +61,8 @@ func init() {
 		UpdateComment,
 		CreateComment,
 		DeleteComment,
+
+		ReadSystemData,
 	)
 
 	addPermissions(Guest, ReadContribution)

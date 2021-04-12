@@ -52,7 +52,7 @@ func (r repository) FindAndCount(ctx context.Context, query *IndexQuery) ([]*Ent
 	var entities []*Entity
 	builder := r.db.WithContext(ctx).Model(&Entity{})
 	if query.Status != "" {
-		builder.Where("status = ?", query.Status)
+		builder.Where("contributions.status = ?", query.Status)
 	}
 	if query.FacultyId != nil {
 		builder.Joins("join users on users.id = contributions.user_id").
