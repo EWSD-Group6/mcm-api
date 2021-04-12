@@ -334,54 +334,54 @@
                         "name": "body",
                         "in": "body",
                         "required": true,
-                      "schema": {
-                        "$ref": "#/definitions/contributesession.SessionCreateReq"
-                      }
+                        "schema": {
+                            "$ref": "#/definitions/contributesession.SessionCreateReq"
+                        }
                     }
                 ],
-              "responses": {
-                "200": {
-                  "description": "OK",
-                  "schema": {
-                    "$ref": "#/definitions/contributesession.SessionRes"
-                  }
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/contributesession.SessionRes"
+                        }
+                    }
                 }
-              }
             }
         },
-      "/contribute-sessions/current": {
-        "get": {
-          "security": [
-            {
-              "ApiKeyAuth": []
+        "/contribute-sessions/current": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get Current Contribute Session",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Contribute Sessions"
+                ],
+                "summary": "Get Current Contribute Session",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/contributesession.SessionRes"
+                        }
+                    }
+                }
             }
-          ],
-          "description": "Get Current Contribute Session",
-          "consumes": [
-            "application/json"
-          ],
-          "produces": [
-            "application/json"
-          ],
-          "tags": [
-            "Contribute Sessions"
-          ],
-          "summary": "Get Current Contribute Session",
-          "responses": {
-            "200": {
-              "description": "OK",
-              "schema": {
-                "$ref": "#/definitions/contributesession.SessionRes"
-              }
-            }
-          }
-        }
-      },
-      "/contribute-sessions/{id}": {
-        "get": {
-          "security": [
-            {
-              "ApiKeyAuth": []
+        },
+        "/contribute-sessions/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "get Contribute Session by ID",
@@ -1002,134 +1002,134 @@
                         "description": "ID",
                         "name": "id",
                         "in": "path",
-                      "required": true
+                        "required": true
                     }
                 ],
-              "responses": {
-                "200": {
-                  "description": ""
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
                 }
-              }
             }
         },
-      "/statistics/admin-dashboard": {
-        "get": {
-          "security": [
-            {
-              "ApiKeyAuth": []
+        "/statistics/admin-dashboard": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Admin Dashboard Data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Statistics"
+                ],
+                "summary": "Admin Dashboard Data",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/statistic.AdminDashboard"
+                        }
+                    }
+                }
             }
-          ],
-          "description": "Admin Dashboard Data",
-          "consumes": [
-            "application/json"
-          ],
-          "produces": [
-            "application/json"
-          ],
-          "tags": [
-            "Statistics"
-          ],
-          "summary": "Admin Dashboard Data",
-          "responses": {
-            "200": {
-              "description": "OK",
-              "schema": {
-                "$ref": "#/definitions/statistic.AdminDashboard"
-              }
+        },
+        "/statistics/contribution-faculty-chart": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Contribution group by faculty data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Statistics"
+                ],
+                "summary": "Contribution group by faculty data",
+                "parameters": [
+                    {
+                        "enum": [
+                            "accepted",
+                            "reviewing",
+                            "rejected"
+                        ],
+                        "type": "string",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/statistic.ContributionFacultyChart"
+                        }
+                    }
+                }
             }
-          }
-        }
-      },
-      "/statistics/contribution-faculty-chart": {
-        "get": {
-          "security": [
-            {
-              "ApiKeyAuth": []
+        },
+        "/statistics/contribution-student-chart": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Contribution group by student data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Statistics"
+                ],
+                "summary": "Contribution group by student data",
+                "parameters": [
+                    {
+                        "enum": [
+                            "accepted",
+                            "reviewing",
+                            "rejected"
+                        ],
+                        "type": "string",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/statistic.ContributionStudentChart"
+                        }
+                    }
+                }
             }
-          ],
-          "description": "Contribution group by faculty data",
-          "consumes": [
-            "application/json"
-          ],
-          "produces": [
-            "application/json"
-          ],
-          "tags": [
-            "Statistics"
-          ],
-          "summary": "Contribution group by faculty data",
-          "parameters": [
-            {
-              "enum": [
-                "accepted",
-                "reviewing",
-                "rejected"
-              ],
-              "type": "string",
-              "name": "status",
-              "in": "query"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "OK",
-              "schema": {
-                "$ref": "#/definitions/statistic.ContributionFacultyChart"
-              }
-            }
-          }
-        }
-      },
-      "/statistics/contribution-student-chart": {
-        "get": {
-          "security": [
-            {
-              "ApiKeyAuth": []
-            }
-          ],
-          "description": "Contribution group by student data",
-          "consumes": [
-            "application/json"
-          ],
-          "produces": [
-            "application/json"
-          ],
-          "tags": [
-            "Statistics"
-          ],
-          "summary": "Contribution group by student data",
-          "parameters": [
-            {
-              "enum": [
-                "accepted",
-                "reviewing",
-                "rejected"
-              ],
-              "type": "string",
-              "name": "status",
-              "in": "query"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "OK",
-              "schema": {
-                "$ref": "#/definitions/statistic.ContributionStudentChart"
-              }
-            }
-          }
-        }
-      },
-      "/storage/upload": {
-        "post": {
-          "security": [
-            {
-              "ApiKeyAuth": []
-            }
-          ],
-          "description": "Upload file",
-          "consumes": [
-            "multipart/form-data"
+        },
+        "/storage/upload": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Upload file",
+                "consumes": [
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -1188,10 +1188,10 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/definitions/systemdata.DataRes"
-                          }
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/systemdata.DataRes"
+                            }
                         }
                     }
                 }
@@ -1675,6 +1675,9 @@
                 "exportedAssets": {
                     "type": "string"
                 },
+                "exportedAssetsCdn": {
+                    "type": "string"
+                },
                 "finalClosureTime": {
                     "type": "string"
                 },
@@ -1910,146 +1913,146 @@
                 "perPage": {
                     "type": "integer"
                 },
-              "total": {
-                "type": "integer"
-              }
+                "total": {
+                    "type": "integer"
+                }
             }
         },
-      "media.UploadResult": {
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": "string"
-          }
-        }
-      },
-      "statistic.AdminDashboard": {
-        "type": "object",
-        "properties": {
-          "activeUserCount": {
-            "type": "integer"
-          },
-          "disableUserCount": {
-            "type": "integer"
-          },
-          "guestCount": {
-            "type": "integer"
-          },
-          "marketingCoordinatorCount": {
-            "type": "integer"
-          },
-          "marketingManagerCount": {
-            "type": "integer"
-          },
-          "studentCount": {
-            "type": "integer"
-          },
-          "totalContributeSession": {
-            "type": "integer"
-          },
-          "totalContribution": {
-            "type": "integer"
-          }
-        }
-      },
-      "statistic.ContributionFacultyChart": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/statistic.FacultyContributionData"
+        "media.UploadResult": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                }
             }
-          },
-          "session": {
-            "$ref": "#/definitions/statistic.Session"
-          }
-        }
-      },
-      "statistic.ContributionStudentChart": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/statistic.ContributionStudentData"
+        },
+        "statistic.AdminDashboard": {
+            "type": "object",
+            "properties": {
+                "activeUserCount": {
+                    "type": "integer"
+                },
+                "disableUserCount": {
+                    "type": "integer"
+                },
+                "guestCount": {
+                    "type": "integer"
+                },
+                "marketingCoordinatorCount": {
+                    "type": "integer"
+                },
+                "marketingManagerCount": {
+                    "type": "integer"
+                },
+                "studentCount": {
+                    "type": "integer"
+                },
+                "totalContributeSession": {
+                    "type": "integer"
+                },
+                "totalContribution": {
+                    "type": "integer"
+                }
             }
-          },
-          "session": {
-            "$ref": "#/definitions/statistic.Session"
-          }
-        }
-      },
-      "statistic.ContributionStudentData": {
-        "type": "object",
-        "properties": {
-          "count": {
-            "type": "integer"
-          },
-          "email": {
-            "type": "string"
-          },
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          }
-        }
-      },
-      "statistic.FacultyContributionData": {
-        "type": "object",
-        "properties": {
-          "count": {
-            "type": "integer"
-          },
-          "id": {
-            "type": "integer"
-          },
-          "name": {
-            "type": "string"
-          }
-        }
-      },
-      "statistic.Session": {
-        "type": "object",
-        "properties": {
-          "closureTime": {
-            "type": "string"
-          },
-          "finalClosureTime": {
-            "type": "string"
-          },
-          "id": {
-            "type": "integer"
-          },
-          "openTime": {
-            "type": "string"
-          }
-        }
-      },
-      "systemdata.DataRes": {
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "document",
-              "int",
-              "string"
-            ]
-          },
-          "updatedAt": {
-            "type": "string"
-          },
-          "value": {
-            "type": "string"
-          }
-        }
-      },
+        },
+        "statistic.ContributionFacultyChart": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/statistic.FacultyContributionData"
+                    }
+                },
+                "session": {
+                    "$ref": "#/definitions/statistic.Session"
+                }
+            }
+        },
+        "statistic.ContributionStudentChart": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/statistic.ContributionStudentData"
+                    }
+                },
+                "session": {
+                    "$ref": "#/definitions/statistic.Session"
+                }
+            }
+        },
+        "statistic.ContributionStudentData": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "statistic.FacultyContributionData": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "statistic.Session": {
+            "type": "object",
+            "properties": {
+                "closureTime": {
+                    "type": "string"
+                },
+                "finalClosureTime": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "openTime": {
+                    "type": "string"
+                }
+            }
+        },
+        "systemdata.DataRes": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "document",
+                        "int",
+                        "string"
+                    ]
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
         "systemdata.DataUpdateReq": {
             "type": "object",
             "properties": {
@@ -2107,11 +2110,11 @@
                     ]
                 },
                 "status": {
-                  "type": "string",
-                  "enum": [
-                    "active",
-                    "disable"
-                  ]
+                    "type": "string",
+                    "enum": [
+                        "active",
+                        "disable"
+                    ]
                 }
             }
         },
@@ -2163,11 +2166,11 @@
                     "type": "string"
                 },
                 "status": {
-                  "type": "string",
-                  "enum": [
-                    "active",
-                    "disable"
-                  ]
+                    "type": "string",
+                    "enum": [
+                        "active",
+                        "disable"
+                    ]
                 }
             }
         }

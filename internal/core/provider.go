@@ -3,6 +3,8 @@ package core
 import (
 	_ "embed"
 	"github.com/go-redis/redis/v8"
+	"github.com/go-redsync/redsync/v4"
+	"github.com/go-redsync/redsync/v4/redis/goredis/v8"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -59,10 +61,16 @@ func ProvideRedis(config *config.Config) *redis.Client {
 	return rdb
 }
 
+func ProvideLock(r *redis.Client) *redsync.Redsync {
+	pool := goredis.NewPool(r)
+	return redsync.New(pool)
+}
+
 var InfraSet = wire.NewSet(
 	ProvideConfig,
 	ProvideDB,
 	ProvideRedis,
+	ProvideLock,
 	queue.InitializeRedisQueue,
 )
 var HandlerSet = wire.NewSet(

@@ -8,6 +8,9 @@ start-dev:
 	docker-compose --project-name mcm -f ./deployments/docker-compose-dev.yaml up -d
 	air -c ./scripts/air.toml
 
+clean-dev:
+	docker-compose --project-name mcm -f ./deployments/docker-compose-dev.yaml stop
+
 build-air:
 	swag init -g internal/server/server.go
 	go build -o ./tmp/main .

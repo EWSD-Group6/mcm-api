@@ -1693,6 +1693,9 @@ var doc = `{
                 "exportedAssets": {
                     "type": "string"
                 },
+                "exportedAssetsCdn": {
+                    "type": "string"
+                },
                 "finalClosureTime": {
                     "type": "string"
                 },

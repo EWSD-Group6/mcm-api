@@ -12,6 +12,7 @@ type SessionRes struct {
 	ClosureTime      time.Time `json:"closureTime"`
 	FinalClosureTime time.Time `json:"finalClosureTime"`
 	ExportedAssets   string    `json:"exportedAssets"`
+	ExportAssetsCdn  string    `json:"exportedAssetsCdn,omitempty"`
 	common.TrackTime
 }
 

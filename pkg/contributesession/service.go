@@ -8,7 +8,9 @@ import (
 	"mcm-api/config"
 	"mcm-api/pkg/apperror"
 	"mcm-api/pkg/common"
+	"mcm-api/pkg/enforcer"
 	"mcm-api/pkg/log"
+	"mcm-api/pkg/media"
 	"mcm-api/pkg/queue"
 	"time"
 )
@@ -17,17 +19,20 @@ type Service struct {
 	cfg        *config.Config
 	repository *repository
 	queue      queue.Queue
+	media      media.Service
 }
 
 func InitializeService(
 	cfg *config.Config,
 	repository *repository,
 	queue queue.Queue,
+	media media.Service,
 ) *Service {
 	return &Service{
 		cfg:        cfg,
 		repository: repository,
 		queue:      queue,
+		media:      media,
 	}
 }
 
@@ -36,7 +41,11 @@ func (s Service) Find(ctx context.Context, query *IndexQuery) (*common.PaginateR
 	if err != nil {
 		return nil, err
 	}
-	res := mapEntitiesToRes(entities)
+	user, err := enforcer.GetLoggedInUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	res := s.mapEntitiesToRes(entities, enforcer.Can(user.Role, enforcer.ExportContributeSession))
 	return common.NewPaginateResponse(res, count, query.Page, query.GetLimit()), nil
 }
 
@@ -48,7 +57,14 @@ func (s Service) FindById(ctx context.Context, id int) (*SessionRes, error) {
 		}
 		return nil, err
 	}
-	return mapEntityToRes(entity), nil
+	user, err := enforcer.GetLoggedInUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return s.mapEntityToRes(
+		entity,
+		enforcer.Can(user.Role, enforcer.ExportContributeSession),
+	), nil
 }
 
 func (s Service) Create(ctx context.Context, body *SessionCreateReq) (*SessionRes, error) {
@@ -72,7 +88,7 @@ func (s Service) Create(ctx context.Context, body *SessionCreateReq) (*SessionRe
 	if err != nil {
 		return nil, err
 	}
-	return mapEntityToRes(entity), nil
+	return s.mapEntityToRes(entity, false), nil
 }
 
 func (s Service) Update(ctx context.Context, id int, body *SessionUpdateReq) (*SessionRes, error) {
@@ -99,7 +115,7 @@ func (s Service) Update(ctx context.Context, id int, body *SessionUpdateReq) (*S
 	if err != nil {
 		return nil, err
 	}
-	return mapEntityToRes(entity), nil
+	return s.mapEntityToRes(entity, false), nil
 }
 
 func (s Service) Delete(ctx context.Context, id int) error {
@@ -128,7 +144,7 @@ func (s Service) GetCurrentSession(ctx context.Context) (*SessionRes, error) {
 	if err != nil {
 		return nil, err
 	}
-	return mapEntityToRes(entity), nil
+	return s.mapEntityToRes(entity, false), nil
 }
 
 func (s Service) UpdateExportedAsset(ctx context.Context, id int, key string) error {
@@ -155,8 +171,8 @@ func (s Service) ExportAsset(ctx context.Context, id int) error {
 	})
 }
 
-func mapEntityToRes(entity *Entity) *SessionRes {
-	return &SessionRes{
+func (s Service) mapEntityToRes(entity *Entity, withCdn bool) *SessionRes {
+	session := &SessionRes{
 		Id:               entity.Id,
 		OpenTime:         entity.OpenTime,
 		ClosureTime:      entity.ClosureTime,
@@ -167,12 +183,21 @@ func mapEntityToRes(entity *Entity) *SessionRes {
 			UpdatedAt: entity.UpdatedAt,
 		},
 	}
+	if withCdn && session.ExportedAssets != "" {
+		url, err := s.media.GetUrl(context.Background(), session.ExportedAssets)
+		if err != nil {
+			log.Logger.Error("error get url of exported assets", zap.Error(err))
+		} else {
+			session.ExportAssetsCdn = url
+		}
+	}
+	return session
 }
 
-func mapEntitiesToRes(e []*Entity) []*SessionRes {
+func (s Service) mapEntitiesToRes(e []*Entity, withCdn bool) []*SessionRes {
 	var result []*SessionRes
 	for i := range e {
-		result = append(result, mapEntityToRes(e[i]))
+		result = append(result, s.mapEntityToRes(e[i], withCdn))
 	}
 	return result
 }

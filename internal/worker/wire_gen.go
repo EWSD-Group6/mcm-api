@@ -37,8 +37,9 @@ func InitializeWorker() *worker {
 	userService := user.InitializeService(config, userRepository, facultyService)
 	contributionRepository := contribution.InitializeRepository(db)
 	contributesessionRepository := contributesession.InitializeRepository(db)
-	contributesessionService := contributesession.InitializeService(config, contributesessionRepository, queueQueue)
+	contributesessionService := contributesession.InitializeService(config, contributesessionRepository, queueQueue, service)
 	contributionService := contribution.InitializeService(config, contributionRepository, queueQueue, contributesessionService, articleService, service)
-	workerWorker := newWorker(config, queueQueue, documentConverter, articleService, notificationService, userService, service, contributionService, contributesessionService)
+	redsync := core.ProvideLock(client)
+	workerWorker := newWorker(config, queueQueue, documentConverter, articleService, notificationService, userService, service, contributionService, contributesessionService, redsync)
 	return workerWorker
 }

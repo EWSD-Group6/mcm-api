@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/go-redsync/redsync/v4"
 	"go.uber.org/zap"
 	"mcm-api/config"
 	"mcm-api/pkg/article"
@@ -33,6 +34,7 @@ type worker struct {
 	contributionService        *contribution.Service
 	contributionSessionService *contributesession.Service
 	mediaService               media.Service
+	lock                       *redsync.Redsync
 }
 
 func newWorker(
@@ -45,6 +47,7 @@ func newWorker(
 	mediaService media.Service,
 	contributionService *contribution.Service,
 	contributionSessionService *contributesession.Service,
+	lock *redsync.Redsync,
 ) *worker {
 	return &worker{
 		cfg:                        config,
@@ -56,6 +59,7 @@ func newWorker(
 		contributionService:        contributionService,
 		contributionSessionService: contributionSessionService,
 		mediaService:               mediaService,
+		lock:                       lock,
 	}
 }
 

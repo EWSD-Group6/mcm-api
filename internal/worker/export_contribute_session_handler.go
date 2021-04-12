@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/go-redsync/redsync/v4"
 	"go.uber.org/zap"
 	"io"
 	"io/fs"
@@ -17,9 +18,29 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 func (w worker) exportContributeSessionHandler(ctx context.Context, message *queue.Message) error {
+	v, ok := message.Data.(*queue.ExportContributeSessionPayload)
+	if !ok {
+		return errors.New("unknown message")
+	}
+	mutex := w.CreateMutex(v.ContributeSessionId)
+	// try to lock
+	err := mutex.LockContext(ctx)
+	if err != nil {
+		return err
+	}
+	// lock oke
+	defer func() {
+		ok, err = mutex.UnlockContext(ctx)
+		if !ok || err != nil {
+			log.Logger.Error("failed to unlock", zap.Error(err))
+		}
+	}()
+
+	// create temp folder to processing
 	temp, err := os.MkdirTemp("", "mcm-processing-*")
 	if err != nil {
 		return err
@@ -30,10 +51,6 @@ func (w worker) exportContributeSessionHandler(ctx context.Context, message *que
 			log.Logger.Error("failed to delete folder", zap.String("name", temp))
 		}
 	}()
-	v, ok := message.Data.(*queue.ExportContributeSessionPayload)
-	if !ok {
-		return errors.New("unknown message")
-	}
 	contributions, err := w.contributionService.GetAllAcceptedContributions(ctx, v.ContributeSessionId)
 	if err != nil {
 		return err
@@ -170,4 +187,15 @@ func (w worker) downloadContribution(ctx context.Context, basePath string, c *co
 		_ = imageReader.Close()
 	}
 	return nil
+}
+
+func (w worker) CreateMutex(id int) *redsync.Mutex {
+	return w.lock.NewMutex(generateLockKey(id),
+		redsync.WithExpiry(time.Hour),
+		redsync.WithTries(2),
+	)
+}
+
+func generateLockKey(id int) string {
+	return fmt.Sprintf("session:%v:export-asset-lock", id)
 }
