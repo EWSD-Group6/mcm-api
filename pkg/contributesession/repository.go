@@ -68,7 +68,7 @@ func (r repository) FindAndCount(ctx context.Context, query *IndexQuery) ([]*Ent
 
 func (r repository) GetLastSession(ctx context.Context, except ...int) (*Entity, error) {
 	var entity Entity
-	builder := r.db.WithContext(ctx).Order("final_closure_time DESC")
+	builder := r.db.WithContext(ctx).Debug().Order("final_closure_time DESC")
 	if except != nil {
 		builder.Not(except)
 	}

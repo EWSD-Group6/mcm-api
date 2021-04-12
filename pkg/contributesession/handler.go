@@ -25,7 +25,7 @@ func NewHandler(config *config.Config, service *Service) *Handler {
 func (h *Handler) Register(group *echo.Group) {
 	group.Use(middleware.RequireAuthentication(h.config.JwtSecret))
 	group.GET("", h.index, middleware.RequirePermission(enforcer.ReadContributeSession))
-	group.GET("/current", h.getCurrentSession, middleware.RequirePermission(enforcer.ReadContributeSession))
+	group.GET("/current", h.getCurrentSession)
 	group.GET("/:id", h.getById, middleware.RequirePermission(enforcer.ReadContributeSession))
 	group.POST("", h.create, middleware.RequirePermission(enforcer.CreateContributeSession))
 	group.POST("/:id/export", h.export, middleware.RequirePermission(enforcer.ExportContributeSession))
