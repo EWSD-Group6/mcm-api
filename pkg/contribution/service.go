@@ -65,6 +65,18 @@ func (s Service) Find(ctx context.Context, query *IndexQuery) (*common.PaginateR
 			return nil, err
 		}
 		break
+	case enforcer.Guest:
+		result, count, err = s.repository.FindAndCount(ctx, &IndexQuery{
+			PaginateQuery:         query.PaginateQuery,
+			FacultyId:             loggedInUser.FacultyId,
+			StudentId:             query.StudentId,
+			ContributionSessionId: query.ContributionSessionId,
+			Status:                Accepted,
+		})
+		if err != nil {
+			return nil, err
+		}
+		break
 	case enforcer.MarketingCoordinator:
 		result, count, err = s.repository.FindAndCount(ctx, &IndexQuery{
 			PaginateQuery:         query.PaginateQuery,
