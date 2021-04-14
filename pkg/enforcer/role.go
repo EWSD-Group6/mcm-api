@@ -40,6 +40,8 @@ func init() {
 		ReadContributeSession,
 		ExportContributeSession,
 		ReadStatistic,
+
+		ReadContributeSession,
 	)
 
 	addPermissions(MarketingCoordinator,
@@ -49,6 +51,8 @@ func init() {
 		UpdateComment,
 		CreateComment,
 		DeleteComment,
+
+		ReadContributeSession,
 	)
 
 	addPermissions(Student,
@@ -63,6 +67,8 @@ func init() {
 		DeleteComment,
 
 		ReadSystemData,
+
+		ReadContributeSession,
 	)
 
 	addPermissions(Guest, ReadContribution)
