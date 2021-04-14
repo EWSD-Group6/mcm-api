@@ -19,6 +19,7 @@ import (
 	"mcm-api/pkg/user"
 	"os"
 	"os/signal"
+	"strconv"
 	"time"
 )
 
@@ -139,7 +140,7 @@ func (w worker) contributionCreatedHandler(ctx context.Context, message *queue.M
 				&notification.TemplateNewContributionPayLoad{
 					Name:        marketingCoordinator.Name,
 					StudentName: v.UserName,
-					Link:        "https://google.com",
+					Link:        w.cfg.WebAppUrl + "/contribution/" + strconv.Itoa(v.ContributionId),
 				})
 			if err != nil {
 				log.Logger.Error("send email failed",
