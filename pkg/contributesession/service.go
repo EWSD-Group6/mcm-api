@@ -76,8 +76,16 @@ func (s Service) Create(ctx context.Context, body *SessionCreateReq) (*SessionRe
 		return nil, err
 	}
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		if body.OpenTime.Before(lastSession.FinalClosureTime) || body.OpenTime.Equal(lastSession.FinalClosureTime) {
-			return nil, apperror.New(apperror.ErrConflict, "conflict with last contribute session", nil)
+		if err == nil {
+			if (body.OpenTime.Before(lastSession.FinalClosureTime) || body.OpenTime.Equal(lastSession.FinalClosureTime)) &&
+				body.OpenTime.After(lastSession.OpenTime) || body.OpenTime.Equal(lastSession.OpenTime) {
+				return nil, apperror.New(apperror.ErrConflict, "conflict with last contribute session", nil)
+			}
+
+			if (body.FinalClosureTime.Before(lastSession.OpenTime) || body.FinalClosureTime.Equal(lastSession.OpenTime)) &&
+				body.FinalClosureTime.After(lastSession.FinalClosureTime) || body.FinalClosureTime.Equal(lastSession.FinalClosureTime) {
+				return nil, apperror.New(apperror.ErrConflict, "conflict with last contribute session", nil)
+			}
 		}
 	}
 	entity, err := s.repository.Create(ctx, &Entity{
